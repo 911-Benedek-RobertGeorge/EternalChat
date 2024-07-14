@@ -13,15 +13,18 @@ contract EthernalChat is Ownable {
     //TOOD maybe add a way to encrypt the cid 
 
     /// @notice Mapping of CID of the stored messages for each account
-    mapping(address => string) private addressToCID; 
+    mapping(address => bytes32) private addressToCID; 
     // maybe change it to string[] to allow multiple CIDs per address
     // however this would require multiple fetching from ipfs, so maybe not a good idea
+    // maybe change it to bytes32 to save gas
 
 	/// @notice Address of the token used as payment for storing the messages
     IERC20 public paymentToken;
+    
+    uint256 public price = 5 * 10 ** 18; // 5 tokens
 
     /// @notice Amount of tokens required for storing a message
-    event CIDUpdated(address indexed user, string cid);
+    event CIDUpdated(address indexed user, bytes32 cid);
 
     /// @notice Constructor function
 	/// @param tokenContractAddress  Address of the token used for payment
@@ -31,16 +34,29 @@ contract EthernalChat is Ownable {
         paymentToken = IERC20(tokenContractAddress);
 	}
 
+    /// @notice Sets the price for storing a message
+    /// @param newPrice The new price in tokens
+    function setPrice(uint256 newPrice) public onlyOwner {
+        price = newPrice;
+    }
 
-    function setCID(string memory cid) public {
-        require( bytes(cid).length == 46, "CID should have 46 characters");
+    
+     /// @notice Sets the CID (Content Identifier) for the sender of the transaction. 
+     /// @param cid The CID to set for the user.
+     /// @dev Passes when the user has enough tokens to pay for the storage. This function modifies the state of the contract by storing the CID for the user
+     function setCID(bytes32   cid) public {
+        require(paymentToken.allowance(msg.sender, address(this)) >= price, "Not enough tokens to pay for the storage");
+        require(  cid.length == 46, "CID should have 46 characters");
         addressToCID[msg.sender] = cid;
         emit CIDUpdated(msg.sender, cid);
     }
 
-    function getCID() public view returns (string memory) {
-        string memory cid = addressToCID[msg.sender];
-        require(bytes(cid).length > 0, "No CID found for this address");
+    /// @notice Retrieves the CID (Content Identifier) stored for the user. 
+    /// @return The CID associated with the user.
+    /// @dev Passes when the user has a CID stored. This function is view only, so it doesn't modify the state of the contract
+    function getCID() public view returns (bytes32) {
+        bytes32 cid = addressToCID[msg.sender];
+        require( cid.length > 0, "No CID found for this address");
         return cid;
     }
 }
