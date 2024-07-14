@@ -3,11 +3,12 @@ import { Avatar } from "./Conversations/Avatar";
 
 interface ConversationListProps {
     conversations: { address: string; lastMessage: string }[];
+    selectedConversation: string;
     onSelectConversation: (address: string) => void;
     avatars: { [address: `0x${string}`]: string };
 }
 
-const ConversationList: React.FC<ConversationListProps> = ({ conversations, onSelectConversation, avatars }) => {
+const ConversationList: React.FC<ConversationListProps> = ({ conversations, onSelectConversation, selectedConversation, avatars }) => {
     return (
         <div className="card w-full  bg-primary text-primary-content mt-4 p-4">
             <div className="card-body">
@@ -22,25 +23,25 @@ const ConversationList: React.FC<ConversationListProps> = ({ conversations, onSe
                         </tr>
                     </thead>
                     <tbody>
-                        {conversations.map((conversation, index) => (
-                            <div key={index} onClick={() => onSelectConversation(conversation.address)}>
-                                <tr>
-                                    <td>
-                                        <div className="flex items-center gap-3">
-                                        <Avatar avatar={avatars[conversation.address as `0x${string}`]}/>
-                                            <div>
-                                                <div className="font-bold">{conversation.address}</div>
-                                                {/* <div className="text-sm opacity-50">United States</div> */}
-                                            </div>
+                    {conversations.map((conversation, index) => (
+                            <tr className={selectedConversation == conversation.address ? "bg-base-200" : ""} key={index} onClick={() => onSelectConversation(conversation.address)}>
+
+                                <td>
+                                    <div className="flex items-center gap-3">
+                                        <Avatar avatar={avatars[conversation.address as `0x${string}`]} />
+                                        <div>
+                                            <div className="font-bold">{conversation.address}</div>
+                                            {/* <div className="text-sm opacity-50">United States</div> */}
                                         </div>
-                                    </td>
-                                    <td>
+                                    </div>
+                                </td>
+                                <td>
                                     <div className="flex items-center gap-3">
                                         {conversation.lastMessage}
-                                        </div>
-                                    </td>
-                                </tr>
-                            </div>
+                                    </div>
+                                </td>
+
+                            </tr>
                         ))}
                     </tbody>
                 </table>

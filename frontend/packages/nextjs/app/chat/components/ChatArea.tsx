@@ -41,7 +41,7 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
         <>
             <div className="content-container flex w-full h-full">
                 <div className="conversation-list flex-1 basis-1/3 p-4 m-2">
-                    <ConversationList  avatars={avatars} conversations={conversations} onSelectConversation={handleSelectConversation} />
+                    <ConversationList  avatars={avatars} conversations={conversations} onSelectConversation={handleSelectConversation} selectedConversation={selectedConversation || ''} />
                 </div>
                 <div className={`message-list flex-1 basis-2/3 p-4 m-2 ${!selectedConversation ? 'empty' : ''}`}>
                     {selectedConversation ? (
