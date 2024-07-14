@@ -4,6 +4,8 @@ import { abi as lotteryAbi } from "../../../abi/Lottery.json";
 import { parseEther, toHex } from "viem";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
  
+
+
 export function LotteryAdmin({ address }: { address: string,  }) {
    const [error, setError] = useState<String | null>(null);
   const [isOwner, setIsOwner] = useState<boolean>(false);   

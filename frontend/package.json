@@ -41,5 +41,9 @@
   },
   "engines": {
     "node": ">=18.17.0"
+  },
+  "dependencies": {
+    "@helia/json": "^3.0.4",
+    "helia": "^4.2.4"
   }
 }
