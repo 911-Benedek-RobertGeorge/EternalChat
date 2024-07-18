@@ -29,7 +29,7 @@ contract EthernalChat is Ownable {
     /// @notice Constructor function
 	/// @param tokenContractAddress  Address of the token used for payment
 	constructor(
-        address tokenContractAddress 
+        Chronos tokenContractAddress 
 	) Ownable(msg.sender) {
         paymentToken = IERC20(tokenContractAddress);
 	}
