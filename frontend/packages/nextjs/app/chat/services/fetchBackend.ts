@@ -2,8 +2,8 @@ import { Conversation, Conversations, MessageRecord } from "../types/types";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export const fetchMessages = async (address: string): Promise<MessageRecord[]> => {
-    
+export const fetchMessagesBackend = async (address: string): Promise<MessageRecord[]> => {
+
       const response = await fetch(`${BACKEND_URL}/stored-message?address=${address}`, {
         method: 'GET',
         headers: {

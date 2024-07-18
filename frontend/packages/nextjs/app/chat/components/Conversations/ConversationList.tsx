@@ -1,15 +1,18 @@
-import React from "react";
-import { Avatar } from "./Conversations/Avatar";
-import { Conversations } from "../types/types";
+import React, { Dispatch, SetStateAction } from "react";
+import { Avatar } from "./Avatar";
+import { Conversations } from "../../types/types";
+import {CreateConversation } from "./CreateConversation"
 
 interface ConversationListProps {
     conversations: Conversations;
     selectedConversation: string;
     onSelectConversation: (address: `0x${string}`) => void;
     avatars: { [address: `0x${string}`]: string };
+    setConversations: Dispatch<SetStateAction<Conversations>>;
+    setSelectedConversation: Dispatch<SetStateAction<`0x${string}` | null>>;
 }
 
-const ConversationList: React.FC<ConversationListProps> = ({ conversations, onSelectConversation, selectedConversation, avatars }) => {
+const ConversationList: React.FC<ConversationListProps> = ({ conversations, onSelectConversation, selectedConversation, avatars,setConversations,setSelectedConversation }) => {
     return (
         <div className="card w-full  bg-primary text-primary-content mt-4 p-4">
             <div className="card-body">
@@ -38,7 +41,7 @@ const ConversationList: React.FC<ConversationListProps> = ({ conversations, onSe
                                 </td>
                                 <td>
                                     <div className="flex items-center gap-3">
-                                        {messages ? messages[messages.length - 1].message.slice(0,30) : ""}{"..."}
+                                        {messages ? messages[messages.length - 1]?.message.slice(0,30) : ""}{"..."}
                                     </div>
                                 </td>
 
@@ -47,7 +50,8 @@ const ConversationList: React.FC<ConversationListProps> = ({ conversations, onSe
                     </tbody>
                 </table>
             </div>
-
+            <div className="h-10"></div>
+            <CreateConversation setConversations={setConversations} setSelectedConversation={setSelectedConversation}/>
 
 
         </div>

@@ -4,7 +4,7 @@ export type Conversation = ConversationMessage[]
 
 export interface ConversationMessage{
   message: string;
-  timestamp: bigint;
+  timestamp: number;
   direction:string;
 }
 
@@ -15,6 +15,6 @@ export type Conversations = Record<`0x${string}`,Conversation>
 export interface MessageRecord {
   otherAddress: `0x${string}`;
   message: string;
-  timestamp: bigint;
+  timestamp: number;
   direction: string;
 }
