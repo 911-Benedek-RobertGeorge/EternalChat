@@ -1,5 +1,4 @@
 export interface MessageRecord {
-  ownerAddress: string;
   otherAddress: string;
   message: string;
   timestamp: bigint;

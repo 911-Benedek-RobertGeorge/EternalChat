@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Post } from '@nestjs/common';
+import { Controller, Get, Body, Post, Param, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessageRecordDto } from './dtos/messageRecod.dto';
 
@@ -26,8 +26,11 @@ export class AppController {
       ),
     };
   }
+
   @Get('stored-message')
-  getMessage() {
-    return { result: this.appService.getMessage() };
+  getMessage(@Query('address') address: `0x${string}`) {
+    console.log(address);
+    
+    return { result: this.appService.getMessage(address) };
   }
 }

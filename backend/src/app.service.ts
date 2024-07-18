@@ -59,7 +59,7 @@ export class AppService {
     });
 
     GlobalService.globalVar[otherAddress].push({
-      ownerAddress,
+      otherAddress: ownerAddress,
       message,
       timestamp,
       direction: changeDirection(direction),
@@ -68,9 +68,8 @@ export class AppService {
     return;
   }
 
-  getMessage(): string {
-    console.log(GlobalService.globalVar);
-    return JSON.stringify(GlobalService.globalVar);
+  getMessage(address: `0x${string}`): string {
+    return JSON.stringify(GlobalService.globalVar[address]);
   }
 
   getAddressToCID(): string {
