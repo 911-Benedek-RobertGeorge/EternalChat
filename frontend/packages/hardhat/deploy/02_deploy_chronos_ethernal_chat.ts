@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { Contract, parseEther } from "ethers";
+import { Contract } from "ethers";
 
 /**
  * Deploys a contract named "YourContract" using the deployer account and
@@ -22,10 +22,27 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
+  const tokenName = "Chronos";
+  const tokenSymbol = "CRS";
+
+  await deploy("Chronos", {
+    from: deployer,
+    // Contract constructor arguments
+    args: [tokenName, tokenSymbol],
+    log: true,
+    // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
+    // automatically mining the contract deployment transaction. There is no effect on live networks.
+    autoMine: true,
+  });
+
+  const chronos = await hre.ethers.getContract<Contract>("Chronos", deployer);
+  console.log("chronos token address", await chronos.getAddress());
+  const chronosAddress = await chronos.getAddress();
+
   await deploy("EthernalChat", {
     from: deployer,
     // Contract constructor arguments
-    args: [deployer],
+    args: [chronosAddress],
     log: true,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
@@ -36,6 +53,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const ethernalChat = await hre.ethers.getContract<Contract>("EthernalChat", deployer);
 
   console.log("Ethernal Chat initial Owner", await ethernalChat.owner());
+  console.log("Ethernal chat address", await ethernalChat.getAddress());
 };
 
 export default deployYourContract;
