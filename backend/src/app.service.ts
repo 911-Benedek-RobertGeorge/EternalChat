@@ -45,11 +45,10 @@ export class AppService {
     timestamp: bigint,
     direction: string,
   ) {
-    if (
-      !GlobalService.globalVar[ownerAddress] ||
-      !GlobalService.globalVar[otherAddress]
-    ) {
+    if (!GlobalService.globalVar[ownerAddress]) {
       GlobalService.globalVar[ownerAddress] = [];
+    }
+    if (!GlobalService.globalVar[otherAddress]) {
       GlobalService.globalVar[otherAddress] = [];
     }
     GlobalService.globalVar[ownerAddress].push({
