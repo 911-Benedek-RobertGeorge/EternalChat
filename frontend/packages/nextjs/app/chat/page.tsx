@@ -1,13 +1,8 @@
 "use client"
 
 import type { NextPage } from "next";
-import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { Address } from "~~/components/scaffold-eth";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth";
-import useReRender from "~~/hooks/useReRender";
-import { fetchConversations, fetchMessages } from "./services/conversationService";
-import { Conversation, Message } from "./types/types";
 import ChatArea from "./components/ChatArea";
 
 const Chat: NextPage = () => {

@@ -6,14 +6,12 @@ import { Config, useAccount, UseAccountReturnType, useEnsAvatar, useEnsName } fr
 import { Address } from "~~/components/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 import useReRender from "~~/hooks/useReRender";
-import { fetchConversations, fetchMessages } from "../services/conversationService";
+import { fetchConversations, fetchMessages } from "../services/fetchBackend";
 import { Conversation, Message } from "../types/types";
 import ConversationList from "./ConversationList";
 import MessageList from "./MessageList";
-import { getAddress, isAddress } from "viem";
-import { normalize } from "viem/ens";
-import { blo } from "blo";
 import { useGetConversationAvatars } from "../services/useAvatars";
+import { generateKey } from "crypto";
 
 
 const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
