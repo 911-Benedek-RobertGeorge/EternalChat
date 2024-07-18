@@ -29,8 +29,6 @@ export class AppController {
 
   @Get('stored-message')
   getMessage(@Query('address') address: `0x${string}`) {
-    console.log(address);
-    
     return { result: this.appService.getMessage(address) };
   }
 }

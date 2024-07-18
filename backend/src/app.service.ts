@@ -3,8 +3,6 @@ import { Address, createPublicClient, createWalletClient, http } from 'viem';
 import { sepolia } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
 
-import * as ethernalChatJson from './assets/EthernalChat.json';
-
 import { GlobalService, MessageRecord } from './utils/global.service';
 
 function changeDirection(direction: string) {
@@ -42,7 +40,7 @@ export class AppService {
     ownerAddress: string,
     otherAddress: string,
     message: string,
-    timestamp: bigint,
+    timestamp: number,
     direction: string,
   ) {
     if (!GlobalService.globalVar[ownerAddress]) {
@@ -64,7 +62,7 @@ export class AppService {
       timestamp,
       direction: changeDirection(direction),
     } as MessageRecord);
-
+    
     return;
   }
 

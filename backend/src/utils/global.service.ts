@@ -1,7 +1,7 @@
 export interface MessageRecord {
   otherAddress: string;
   message: string;
-  timestamp: bigint;
+  timestamp: number;
   direction: string;
 }
 

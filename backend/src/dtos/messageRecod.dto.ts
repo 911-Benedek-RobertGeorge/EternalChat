@@ -7,8 +7,8 @@ export class MessageRecordDto {
   otherAddress: string;
   @ApiProperty({ type: String, required: true, default: 'Encrypted Message' })
   message: string;
-  @ApiProperty({ type: BigInt, required: true, default: '10n' })
-  timestamp: bigint;
+  @ApiProperty({ type: Number, required: true, default: '1' })
+  timestamp: number;
   @ApiProperty({
     type: String,
     required: true,
