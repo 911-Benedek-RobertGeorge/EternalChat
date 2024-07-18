@@ -5,7 +5,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 
 import * as ethernalChatJson from './assets/EthernalChat.json';
 
-import { GlobalService } from './utils/global.service';
+import { GlobalService, MessageRecord } from './utils/global.service';
 
 function changeDirection(direction: string) {
   if (direction.toLowerCase() == 'incoming') {
@@ -56,14 +56,14 @@ export class AppService {
       message,
       timestamp,
       direction,
-    });
+    } as MessageRecord);
 
     GlobalService.globalVar[otherAddress].push({
       otherAddress: ownerAddress,
       message,
       timestamp,
       direction: changeDirection(direction),
-    });
+    } as MessageRecord);
 
     return;
   }
