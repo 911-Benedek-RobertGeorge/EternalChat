@@ -1,10 +1,11 @@
 import React from "react";
 import { Avatar } from "./Conversations/Avatar";
+import { Conversations } from "../types/types";
 
 interface ConversationListProps {
-    conversations: { address: string; lastMessage: string }[];
+    conversations: Conversations;
     selectedConversation: string;
-    onSelectConversation: (address: string) => void;
+    onSelectConversation: (address: `0x${string}`) => void;
     avatars: { [address: `0x${string}`]: string };
 }
 
@@ -23,21 +24,21 @@ const ConversationList: React.FC<ConversationListProps> = ({ conversations, onSe
                         </tr>
                     </thead>
                     <tbody>
-                    {conversations.map((conversation, index) => (
-                            <tr className={selectedConversation == conversation.address ? "bg-base-200" : ""} key={index} onClick={() => onSelectConversation(conversation.address)}>
+                    {Object.entries(conversations).map(([address, messages]) => (
+                            <tr className={selectedConversation == address ? "bg-base-200" : ""} key={address} onClick={() => onSelectConversation(address as `0x${string}`)}>
 
                                 <td>
                                     <div className="flex items-center gap-3">
-                                        <Avatar avatar={avatars[conversation.address as `0x${string}`]} />
+                                        <Avatar avatar={avatars[address as `0x${string}`]} />
                                         <div>
-                                            <div className="font-bold">{conversation.address}</div>
+                                            <div className="font-bold">{address}</div>
                                             {/* <div className="text-sm opacity-50">United States</div> */}
                                         </div>
                                     </div>
                                 </td>
                                 <td>
                                     <div className="flex items-center gap-3">
-                                        {conversation.lastMessage}
+                                        {messages ? messages[messages.length - 1].message.slice(0,30) : ""}{"..."}
                                     </div>
                                 </td>
 

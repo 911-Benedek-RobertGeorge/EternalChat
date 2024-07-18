@@ -1,20 +1,46 @@
-import { Conversation, Message } from "../types/types";
+import { Conversation, Conversations, MessageRecord } from "../types/types";
 
-export const fetchConversations = async (account: string): Promise<Conversation[]> => {
-    // Replace with your backend URL
-    // const response = await fetch(`https://your-backend-url.com/conversations?account=${account}`);
-    // return response.json();
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-    return [{address:"0xC6CbDd7D90458c5e1003DdE243bF1561efAeE516",lastMessage:"Convo1"},{address:"0xacB1B8FFe4Dc0b8a16a7204536d0609D88f32323",lastMessage:"Convo2"}]
+export const fetchMessages = async (address: string): Promise<MessageRecord[]> => {
+    
+      const response = await fetch(`${BACKEND_URL}/stored-message?address=${address}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    
+      if (!response.ok) {
+        throw new Error('Network response was not ok ' + response.statusText);
+      }
+    
+      const data = await response.json();
+      if(!data.result){
+        return []
+      }
+      
+      return JSON.parse(data.result);
   };
-  
-  export const fetchMessages = async (address: string): Promise<Message[]> => {
-    // Replace with your backend URL
-    // const response = await fetch(`https://your-backend-url.com/messages?address=${address}`);
-    // return response.json();
-    if(address == "0xC6CbDd7D90458c5e1003DdE243bF1561efAeE516" ){
-    return [{sender:"0xC6CbDd7D90458c5e1003DdE243bF1561efAeE516",content:"Message1"},{sender:"0xacB1B8FFe4Dc0b8a16a7204536d0609D88f32323",content:"Message2"}]
-    } else {
-        return [{sender:"0xacB1B8FFe4Dc0b8a16a7204536d0609D88f32323",content:"Message1"},{sender:"0xacB1B8FFe4Dc0b8a16a7204536d0609D88f32323",content:"Message2"}]
+
+
+export function getConversations(messages: MessageRecord[]): Conversations{
+
+  let conversations : Conversations = {}
+
+  for(const message of messages){
+
+    const address = message.otherAddress;
+
+    if(!conversations[address]){
+      conversations[address] = [];
     }
-  };
+
+    conversations[address].push({
+      ...message
+    })
+  }
+
+  return conversations;
+
+}
