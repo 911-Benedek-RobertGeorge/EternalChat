@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Address, createPublicClient, createWalletClient, http } from 'viem';
-import { sepolia } from 'viem/chains';
-import { privateKeyToAccount } from 'viem/accounts';
+import { Address } from 'viem';
 
-import { GlobalService, MessageRecord } from './utils/global.service';
+import { GlobalService, MessageRecord } from './global.service.js';
 
 function changeDirection(direction: string) {
   if (direction.toLowerCase() == 'incoming') {
@@ -13,20 +11,7 @@ function changeDirection(direction: string) {
 }
 @Injectable()
 export class AppService {
-  publicClient: any;
-  walletClient: any;
-
-  constructor() {
-    this.publicClient = createPublicClient({
-      chain: sepolia,
-      transport: http(process.env.RPC_ENDPOINT_URL),
-    });
-    this.walletClient = createWalletClient({
-      account: privateKeyToAccount(`0x${process.env.PRIVATE_KEY}`),
-      chain: sepolia,
-      transport: http(process.env.RPC_ENDPOINT_URL),
-    });
-  }
+  constructor() {}
 
   getHello(): string {
     return 'Hello World!';
@@ -70,7 +55,4 @@ export class AppService {
     return JSON.stringify(GlobalService.globalVar[address]);
   }
 
-  getAddressToCID(): string {
-    return;
-  }
 }

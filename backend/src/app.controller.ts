@@ -1,6 +1,6 @@
 import { Controller, Get, Body, Post, Param, Query } from '@nestjs/common';
-import { AppService } from './app.service';
-import { MessageRecordDto } from './dtos/messageRecod.dto';
+import { AppService } from './app.service.js';
+import { MessageRecordDto } from './dtos/messageRecod.dto.js';
 
 @Controller()
 export class AppController {
@@ -10,10 +10,12 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
   @Get('contract-address')
   getContractAddress() {
     return { result: this.appService.getContractAddress() };
   }
+
   @Post('store-message')
   async storeMessage(@Body() body: MessageRecordDto) {
     return {
