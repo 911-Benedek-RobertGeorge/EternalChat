@@ -13,6 +13,7 @@ import { DeleteBackend } from "./deleteBackendButton";
 import { fetchMessagesIPFS, mergeIpfs } from "../services/fetchIPFS";
 import {abi as ethernalAbi} from '../../../../hardhat/artifacts/contracts/EthernalChat.sol/EthernalChat.json'
 import {CID} from "multiformats"
+import * as jsonCodec from 'multiformats/codecs/json'
 import { fromHex, hexToBytes, toHex } from "viem";
 
 const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
@@ -25,9 +26,8 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
     const avatars = useGetConversationAvatars(account.address, conversations);
     const [cid, setCid] = useState<string | null>(null)
 
-    const { writeContractAsync } = useWriteContract();
     const publicClient = usePublicClient();
-    const [error, setError] = useState<String | null>(null);
+
 
     useEffect(() => {        
         if (account.address) {
@@ -55,31 +55,9 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
         
     };
 
-    const contractAddress = "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318" ;
+    const contractAddress = "0x043076D405B95A050c9d833caCaFaE4058ff88F4" ;
     useEffect(() => {
-        if(cid){
-            const cidObj = CID.parse(cid);
-            const cidBytes = cidObj.multihash.bytes.slice(2);
-            console.log(cidObj.multihash.bytes);
-            
-            if (cidBytes.length !== 32) {
-                throw new Error('Invalid Cid');
-            }
-            const hexString = toHex(cidBytes);
-
-            writeContractAsync({ 
-                abi: ethernalAbi,
-                address: contractAddress as `0x${string}`,
-                functionName: 'setCID',
-                args: [hexString],
-                })
-                .catch((e: Error) => {
-                    console.log("ERROR occured : ", e.message);
-                    setError(e.message);
-                }).then((tx) => {
-                    console.log(`tx hash: ${tx}`);  
-                setError(null)})
-        }else if(publicClient) {
+     if(publicClient) {
             publicClient.readContract(
                 {
                     abi:ethernalAbi,
@@ -92,21 +70,25 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
                     size: 32,
                     to: 'bytes'
                   });
-                  console.log(
-                    bytes.slice()
-                  );
                   
-                  const prefix  = Buffer.from([18, 32]);
-                  const resultBuffer = Buffer.concat([prefix, Buffer.from(bytes)]);
-                  const newCid = CID.decode(resultBuffer);
-                  setCid(newCid.toV1().toString());                  
+                  if(!bytes.every(byte => byte === 0)){
+                    console.log("should be non zero");
+                    console.log(bytes);
+                    
+                    
+                    const prefix  = Buffer.from([18, 32]);
+                    const resultBuffer = Buffer.concat([prefix, Buffer.from(bytes)]);
+                    const _newCid = CID.decode(resultBuffer);
+                    const newCid = CID.createV1(jsonCodec.code,_newCid.multihash);                  
+                    setCid(newCid.toString());       
+                }           
                 
             }
             )
         }
 
 
-    }, [cid])  
+    }, [])  
 
 
     if (!account.address) {
@@ -126,7 +108,7 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
                         <div className="h-10"></div>
                         {selectedConversation && messages?.length != 0 &&
                             <div>
-                                <UploadToIpfsButton cid={cid} setCid={setCid} selectedConversation={selectedConversation}/>
+                                <UploadToIpfsButton cid={cid} setCid={setCid} selectedConversation={selectedConversation} contractAddress={contractAddress}/>
                                 <div className="h-4"></div>
                                 <DeleteBackend selectedConversation={selectedConversation} reFetchData={reFetchData}/>
                             </div>
