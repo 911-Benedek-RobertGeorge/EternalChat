@@ -13,7 +13,7 @@ import { DeleteBackend } from "./deleteBackendButton";
 import { fetchMessagesIPFS, mergeIpfs } from "../services/fetchIPFS";
 import {abi as ethernalAbi} from '../../../../hardhat/artifacts/contracts/EthernalChat.sol/EthernalChat.json'
 import {CID} from "multiformats"
-import { hexToBytes, toHex } from "viem";
+import { fromHex, hexToBytes, toHex } from "viem";
 
 const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
     const [address, setAdress] = useState("");
@@ -55,11 +55,13 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
         
     };
 
-    const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512" ;
+    const contractAddress = "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318" ;
     useEffect(() => {
         if(cid){
             const cidObj = CID.parse(cid);
             const cidBytes = cidObj.multihash.bytes.slice(2);
+            console.log(cidObj.multihash.bytes);
+            
             if (cidBytes.length !== 32) {
                 throw new Error('Invalid Cid');
             }
@@ -83,9 +85,23 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
                     abi:ethernalAbi,
                     address: contractAddress,
                     functionName:"getCID",
-                    args: []
+                    args:[account.address]
                 }
-            ).then((res) => console.log(res)
+            ).then((res) => {
+                const bytes = fromHex(res as `0x${string}`,{
+                    size: 32,
+                    to: 'bytes'
+                  });
+                  console.log(
+                    bytes.slice()
+                  );
+                  
+                  const prefix  = Buffer.from([18, 32]);
+                  const resultBuffer = Buffer.concat([prefix, Buffer.from(bytes)]);
+                  const newCid = CID.decode(resultBuffer);
+                  setCid(newCid.toV1().toString());                  
+                
+            }
             )
         }
 
