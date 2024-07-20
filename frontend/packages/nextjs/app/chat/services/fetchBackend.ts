@@ -29,9 +29,6 @@ export function getConversations(messages: MessageRecord[],onIpfs?: boolean): Co
   let conversations : Conversations = {}
   if(!onIpfs){
     onIpfs= false
-  }else{
-    console.log(onIpfs,messages);
-    
   }
 
   for(const message of messages){

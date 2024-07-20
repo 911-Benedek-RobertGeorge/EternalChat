@@ -30,7 +30,6 @@ export const fetchMessagesIPFS = async (cid: string | null): Promise<MessageReco
 };
 
 export function mergeIpfs(data: Conversations, ipfsData: Conversations): Conversations {
-    console.log(ipfsData);
 
     for (const key in data) {
         for (const message of data[key as `0x${string}`]) {

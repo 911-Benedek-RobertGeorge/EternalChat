@@ -9,7 +9,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /// @title A simple chat contract that stores a link between users and messages on IPFS
 /// @notice You can use this contract for keeping a descentralized chat history
 /// @dev This contract implements a relatively simple way of storing messages 
-contract EthernalChat is Ownable {
+contract EthernalChatIncentivized is Ownable {
     
     struct dataInfo{
         bytes32 cid;

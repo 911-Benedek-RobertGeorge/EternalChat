@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Config, UseAccountReturnType } from "wagmi";
+import { Config, useAccount, UseAccountReturnType, usePublicClient, useWriteContract } from "wagmi";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 import useReRender from "~~/hooks/useReRender";
 import { fetchMessagesBackend, getConversations } from "../services/fetchBackend";
@@ -11,18 +11,23 @@ import { NoConversationSelected } from "./Conversations/NoConversationSelected"
 import { UploadToIpfsButton } from "./upload-to-ipfs-button";
 import { DeleteBackend } from "./deleteBackendButton";
 import { fetchMessagesIPFS, mergeIpfs } from "../services/fetchIPFS";
-
+import {abi as ethernalAbi} from '../../../../hardhat/artifacts/contracts/EthernalChat.sol/EthernalChat.json'
+import {CID} from "multiformats"
+import { hexToBytes, toHex } from "viem";
 
 const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
     const [address, setAdress] = useState("");
     const { reRender: reFetchData, count: shouldReRender } = useReRender();
-
     const { targetNetwork } = useTargetNetwork();
     const [conversations, setConversations] = useState<Conversations>({});
     const [messages, setMessages] = useState<Conversation>([]);
     const [selectedConversation, setSelectedConversation] = useState<`0x${string}` | null>(null);
     const avatars = useGetConversationAvatars(account.address, conversations);
     const [cid, setCid] = useState<string | null>(null)
+
+    const { writeContractAsync } = useWriteContract();
+    const publicClient = usePublicClient();
+    const [error, setError] = useState<String | null>(null);
 
     useEffect(() => {        
         if (account.address) {
@@ -41,6 +46,52 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
         setSelectedConversation(address);
         setMessages(conversations[address]);
     };
+
+
+
+    const setCID = async () => {
+        console.log(`set the cid for the user`);
+        
+        
+    };
+
+    const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512" ;
+    useEffect(() => {
+        if(cid){
+            const cidObj = CID.parse(cid);
+            const cidBytes = cidObj.multihash.bytes.slice(2);
+            if (cidBytes.length !== 32) {
+                throw new Error('Invalid Cid');
+            }
+            const hexString = toHex(cidBytes);
+
+            writeContractAsync({ 
+                abi: ethernalAbi,
+                address: contractAddress as `0x${string}`,
+                functionName: 'setCID',
+                args: [hexString],
+                })
+                .catch((e: Error) => {
+                    console.log("ERROR occured : ", e.message);
+                    setError(e.message);
+                }).then((tx) => {
+                    console.log(`tx hash: ${tx}`);  
+                setError(null)})
+        }else if(publicClient) {
+            publicClient.readContract(
+                {
+                    abi:ethernalAbi,
+                    address: contractAddress,
+                    functionName:"getCID",
+                    args: []
+                }
+            ).then((res) => console.log(res)
+            )
+        }
+
+
+    }, [cid])  
+
 
     if (!account.address) {
         return <></>
