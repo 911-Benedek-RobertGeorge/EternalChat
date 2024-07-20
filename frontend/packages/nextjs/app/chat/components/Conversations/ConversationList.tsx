@@ -14,10 +14,7 @@ interface ConversationListProps {
 
 const ConversationList: React.FC<ConversationListProps> = ({ conversations, onSelectConversation, selectedConversation, avatars,setConversations,setSelectedConversation }) => {
     return (
-        <div className="card w-full  bg-primary text-primary-content mt-4 p-4">
-            <div className="card-body">
-                <h2 className="card-title">Conversations</h2>
-            </div>
+<>
             <div className="overflow-x-auto">
                 <table className="table">
                     <thead>
@@ -41,7 +38,7 @@ const ConversationList: React.FC<ConversationListProps> = ({ conversations, onSe
                                 </td>
                                 <td>
                                     <div className="flex items-center gap-3">
-                                        {messages ? messages[messages.length - 1]?.message.slice(0,30) : ""}{"..."}
+                                        {messages ? messages[messages.length - 1]?.message?.slice(0,30) : ""}{"..."}
                                     </div>
                                 </td>
 
@@ -54,7 +51,7 @@ const ConversationList: React.FC<ConversationListProps> = ({ conversations, onSe
             <CreateConversation setConversations={setConversations} setSelectedConversation={setSelectedConversation}/>
 
 
-        </div>
+        </>
     );
 };
 

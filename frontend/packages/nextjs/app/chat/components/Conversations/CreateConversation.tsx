@@ -45,7 +45,7 @@ export const CreateConversation = ({setConversations,setSelectedConversation}: P
         <button
             className="btn btn-active btn-neutral"
             disabled={false}
-            onClick={()=> checkSetAddress(address)}
+            onClick={()=> {checkSetAddress(address); setAddress("")}}
         >
             Create a conversation
         </button>

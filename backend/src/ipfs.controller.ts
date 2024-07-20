@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { IpfsService } from './ipfs.service.js';
-import { AddressToPost } from './dtos/cid.dto.js';
+import { AddressToPost } from './dtos/addressToPost.dto.js';
 
 @Controller()
 export class IpfsController {
@@ -18,11 +18,11 @@ export class IpfsController {
 
   @Post('pin')
   async postToIpfs(@Body() body: AddressToPost) {
-    return await this.ipfsService.postToIPFS(body.address);
+    return { result: await this.ipfsService.postToIPFS(body.ownerAddress,body.otherAddress, body.previousCid)};
   }
 
-  @Post('get-from-cid')
+  @Get('get-from-cid')
   async getFromCid(@Query('cid') cid: string){
-    return await this.ipfsService.getFromCid(cid)
+    return { result:  await this.ipfsService.getFromCid(cid)}
   }
 }

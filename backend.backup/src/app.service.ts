@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Address } from 'viem';
+import { Address, createPublicClient, createWalletClient, http } from 'viem';
+import { sepolia } from 'viem/chains';
+import { privateKeyToAccount } from 'viem/accounts';
 
-import { GlobalService, MessageRecord } from './global.service.js';
+import { GlobalService, MessageRecord } from './global.service';
 
 function changeDirection(direction: string) {
   if (direction.toLowerCase() == 'incoming') {
@@ -11,8 +13,20 @@ function changeDirection(direction: string) {
 }
 @Injectable()
 export class AppService {
+  publicClient: any;
+  walletClient: any;
 
-  constructor() {}
+  constructor() {
+    this.publicClient = createPublicClient({
+      chain: sepolia,
+      transport: http(process.env.RPC_ENDPOINT_URL),
+    });
+    this.walletClient = createWalletClient({
+      account: privateKeyToAccount(`0x${process.env.PRIVATE_KEY}`),
+      chain: sepolia,
+      transport: http(process.env.RPC_ENDPOINT_URL),
+    });
+  }
 
   getHello(): string {
     return 'Hello World!';
@@ -56,11 +70,7 @@ export class AppService {
     return JSON.stringify(GlobalService.globalVar[address]);
   }
 
-  deleteMessages(address: string, otherAddress: string) {
-    GlobalService.globalVar[address] = GlobalService.globalVar[address].filter((message) => message.otherAddress != otherAddress);
-
-    // Here we took the choice to NOT delete the message for the other address...
-    // GlobalService.globalVar[address] = GlobalService.globalVar[otherAddress].filter((message) => message.ownerAddress != address);
+  getAddressToCID(): string {
+    return '';
   }
-
 }

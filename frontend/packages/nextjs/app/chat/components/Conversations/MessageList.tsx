@@ -39,7 +39,7 @@ const MessageList: React.FC<MessageListProps> = ({address, messages, avatars, re
                             <time className="text-xs opacity-50">{new Date(message.timestamp).toLocaleString()}</time>
                         </div>
                         <div className={`chat-bubble ${ message.direction == 'outgoing' && "chat-bubble-secondary"}`}>{message.message}</div>
-                        <div className="chat-footer opacity-50">Delivered</div>
+                        <div className="chat-footer opacity-50">{message.onIpfs ? "saved" : "temporary"}</div>
                     </div>
             ))}
             <div className="h-5"></div>

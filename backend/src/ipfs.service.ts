@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { HeliaLibp2p } from 'helia';
-import { GlobalService } from './global.service.js';
+import { GlobalService, MessageRecord } from './global.service.js';
 
 
 @Injectable()
@@ -54,7 +54,7 @@ export class IpfsService {
 
   async getHelia(): Promise<HeliaLibp2p> {
     if (!this.helia) {
-      this.createHeliaInstance()
+      await this.createHeliaInstance()
     }
 
     return this.helia;
@@ -66,37 +66,46 @@ export class IpfsService {
     }
   }
 
-  async postToIPFS(address: string) {
+  async postToIPFS(ownerAddress: string, otherAddress: string, previousCid: string) {
     const { json } = await import('@helia/json');
     if (this.helia == null) {
-      this.createHeliaInstance();
+      await this.createHeliaInstance();
     }
 
     const j = json(this.helia)
-    const data = GlobalService.globalVar[address];
-    if (!data) {
-      return ""
-    }
-    console.log(data);
 
-    const cid = await j.add(JSON.stringify(data))
+    const data = GlobalService.globalVar[ownerAddress].filter((message: MessageRecord) => message.otherAddress == otherAddress);
+    if (!data) {
+      return null
+    }
+
+    let newData : MessageRecord[] = data.slice();
+
+    if(previousCid && previousCid != null){
+      const { CID } = await import('multiformats/cid')
+      const obj : MessageRecord[] = JSON.parse(await j.get(CID.parse(previousCid)));
+      newData = obj;
+    
+      for (const elem of data){
+        const exists = obj.some((item) => JSON.stringify(item) === JSON.stringify(elem));
+        if (!exists) {
+          newData.push(elem);
+        }
+      }
+    }
+
+    const cid = await j.add(JSON.stringify(newData))
     console.log(cid);
 
     const result = await this.helia.pins.add(cid, { depth: 100 });
-    console.log("the rez of the pining ", result)
     console.log("content pinned with CID", cid.toString())
-
-    const obj = await j.get(cid)
-
-    console.log(obj);
-
 
     return cid.toString();
 
 
   }
 
-  async getFromCid(cid: string){
+  async getFromCid(cid: string) {
     const { json } = await import('@helia/json');
     const { CID } = await import('multiformats/cid')
     if (this.helia == null) {

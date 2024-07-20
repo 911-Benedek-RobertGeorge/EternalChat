@@ -6,6 +6,7 @@ export interface ConversationMessage{
   message: string;
   timestamp: number;
   direction:string;
+  onIpfs: boolean;
 }
 
 /* A map of all the conversations */ 

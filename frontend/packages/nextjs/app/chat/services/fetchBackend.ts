@@ -24,9 +24,15 @@ export const fetchMessagesBackend = async (address: string): Promise<MessageReco
   };
 
 
-export function getConversations(messages: MessageRecord[]): Conversations{
+export function getConversations(messages: MessageRecord[],onIpfs?: boolean): Conversations{
 
   let conversations : Conversations = {}
+  if(!onIpfs){
+    onIpfs= false
+  }else{
+    console.log(onIpfs,messages);
+    
+  }
 
   for(const message of messages){
 
@@ -37,7 +43,7 @@ export function getConversations(messages: MessageRecord[]): Conversations{
     }
 
     conversations[address].push({
-      ...message
+      ...message, onIpfs
     })
   }
 

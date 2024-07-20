@@ -12,7 +12,7 @@ export const SendMessage = ({ address, reFetchData }: Props) => {
     const { address: accAddress } = useAccount();
 
     const handleSubmit = async () => {
-        if (!accAddress) {
+        if (!accAddress || !message) {
             return;
         } else {
             const timestamp = Number(Date.now());
