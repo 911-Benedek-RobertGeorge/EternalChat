@@ -60,7 +60,7 @@ return (
     {cid && <div> Uploaded to IPFS with CID: {cid.toString()}</div>}
     {tx && <label className="label flex flex-col">
                 <span className="label-text">Transaction Hash: {tx} </span>
-                <a target="_blank" href={tx} className="label-text hover:scale-125 bg-slate-500 rounded-3xl p-2"> Check it on explorer!  </a>
+                <a target="_blank" href={blockExplorerTxURL} className="label-text hover:scale-125 bg-slate-500 rounded-3xl p-2"> Check it on explorer!  </a>
             </label>}
     {error && <p className='text-red'>{error}</p>}
     </div>
