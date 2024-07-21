@@ -46,7 +46,6 @@ export class IpfsService {
       }
     })
 
-    console.log(libp2p);
 
 
     this.helia = await createHelia({ blockstore: GlobalService.blockstore, datastore: GlobalService.datastore, libp2p: libp2p });
@@ -109,7 +108,7 @@ export class IpfsService {
     const { json } = await import('@helia/json');
     const { CID } = await import('multiformats/cid')
     if (this.helia == null) {
-      this.createHeliaInstance();
+      await this.createHeliaInstance();
     }
 
     const j = json(this.helia)
