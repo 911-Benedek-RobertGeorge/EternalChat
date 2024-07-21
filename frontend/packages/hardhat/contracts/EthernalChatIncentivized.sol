@@ -18,7 +18,7 @@ contract EthernalChatIncentivized is Ownable {
         uint64 numberOfChunks;
         uint64 sizeOfData;
         //  Address of the storage provider we want to incentivize
-        address storageProvider;
+        address storageProvider;  // This could be a list
     }
 
     /// @notice Mapping of CID of the stored messages for each account
@@ -58,8 +58,6 @@ contract EthernalChatIncentivized is Ownable {
      /// @param cid The CID to set for the user.
      /// @dev Passes when the user has enough tokens to pay for the storage. This function modifies the state of the contract by storing the CID for the user
      function setCID(bytes32   cid) payable public {
-        require(paymentToken.allowance(msg.sender, address(this)) >= price, "Not enough tokens to pay for the storage");
-        require(  cid.length == 46, "CID should have 46 characters");
         addressToCID[msg.sender] = cid;
         emit CIDUpdated(msg.sender, cid);
     }
@@ -73,19 +71,25 @@ contract EthernalChatIncentivized is Ownable {
         return cid;
     }
 
+    function getChallenge() public view returns ( uint64 index ) { // return index
+    // require ..
+        index = 0 ; // random;
+    }
+
+
     /// @notice Allows storage to get a partial amount of reward in token, if it hasn't been already taken in this amount of time 
     function getStorageReward() public view returns (bytes32) {
-        bytes32 cid = addressToCID[msg.sender];
-        require( cid.length > 0, "No CID found for this address");
-        // Check if the chunk size given correspond to the expected size
-        return cid;
+        // bytes32 cid = addressToCID[msg.sender];
+        // require( cid.length > 0, "No CID found for this address");
+        // // Check if the chunk size given correspond to the expected size
+        // return cid;
     }
 
     /// @notice Take out all the rewards in Eth based on the amount of tokens the address holds
     function withdrawRewards() public view returns (bytes32) {
-        bytes32 cid = addressToCID[msg.sender];
-        require( cid.length > 0, "No CID found for this address");
-        return cid;
+        // bytes32 cid = addressToCID[msg.sender];
+        // require( cid.length > 0, "No CID found for this address");
+        // return cid;
     }
 
 }

@@ -44,11 +44,11 @@ contract EthernalChat is Ownable {
      /// @notice Sets the CID (Content Identifier) for the sender of the transaction. 
      /// @param cid The CID to set for the user.
      /// @dev Passes when the user has enough tokens to pay for the storage. This function modifies the state of the contract by storing the CID for the user
-     function setCID(bytes32   cid) public {
+     function setCID(bytes32 cid) public {
         // require(paymentToken.allowance(msg.sender, address(this)) >= price, "Not enough tokens to pay for the storage");
-        // require(  cid.length == 46, "CID should have 46 characters");
+        // require(  cid.length == 64, "CID should have 64 characters"); --Already checked on bytes32 param
         addressToCID[msg.sender] = cid;
-        // emit CIDUpdated(msg.sender, cid);
+        emit CIDUpdated(msg.sender, cid);
     }
 
     /// @notice Retrieves the CID (Content Identifier) stored for the user. 
