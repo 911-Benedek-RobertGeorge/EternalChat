@@ -1,11 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Address, createPublicClient, createWalletClient, http } from 'viem';
-import { sepolia } from 'viem/chains';
-import { privateKeyToAccount } from 'viem/accounts';
+import { Address } from 'viem';
 
-import * as ethernalChatJson from './assets/EthernalChat.json';
-
-import { GlobalService } from './utils/global.service';
+import { GlobalService, MessageRecord } from './global.service.js';
 
 function changeDirection(direction: string) {
   if (direction.toLowerCase() == 'incoming') {
@@ -15,20 +11,8 @@ function changeDirection(direction: string) {
 }
 @Injectable()
 export class AppService {
-  publicClient: any;
-  walletClient: any;
 
-  constructor() {
-    this.publicClient = createPublicClient({
-      chain: sepolia,
-      transport: http(process.env.RPC_ENDPOINT_URL),
-    });
-    this.walletClient = createWalletClient({
-      account: privateKeyToAccount(`0x${process.env.PRIVATE_KEY}`),
-      chain: sepolia,
-      transport: http(process.env.RPC_ENDPOINT_URL),
-    });
-  }
+  constructor() {}
 
   getHello(): string {
     return 'Hello World!';
@@ -42,7 +26,7 @@ export class AppService {
     ownerAddress: string,
     otherAddress: string,
     message: string,
-    timestamp: bigint,
+    timestamp: number,
     direction: string,
   ) {
     if (!GlobalService.globalVar[ownerAddress]) {
@@ -56,24 +40,27 @@ export class AppService {
       message,
       timestamp,
       direction,
-    });
+    } as MessageRecord);
 
     GlobalService.globalVar[otherAddress].push({
-      ownerAddress,
+      otherAddress: ownerAddress,
       message,
       timestamp,
       direction: changeDirection(direction),
-    });
-
+    } as MessageRecord);
+    
     return;
   }
 
-  getMessage(): string {
-    console.log(GlobalService.globalVar);
-    return JSON.stringify(GlobalService.globalVar);
+  getMessage(address: `0x${string}`): string {
+    return JSON.stringify(GlobalService.globalVar[address]);
   }
 
-  getAddressToCID(): string {
-    return;
+  deleteMessages(address: string, otherAddress: string) {
+    GlobalService.globalVar[address] = GlobalService.globalVar[address].filter((message) => message.otherAddress != otherAddress);
+
+    // Here we took the choice to NOT delete the message for the other address...
+    // GlobalService.globalVar[address] = GlobalService.globalVar[otherAddress].filter((message) => message.ownerAddress != address);
   }
+
 }

@@ -1,55 +1,114 @@
-"use client"
-
-import type { NextPage } from "next";
 import { useEffect, useState } from "react";
-import { Config, useAccount, UseAccountReturnType, useEnsAvatar, useEnsName } from "wagmi";
-import { Address } from "~~/components/scaffold-eth";
+import { Config, useAccount, UseAccountReturnType, usePublicClient, useWriteContract } from "wagmi";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 import useReRender from "~~/hooks/useReRender";
-import { fetchConversations, fetchMessages } from "../services/conversationService";
-import { Conversation, Message } from "../types/types";
-import ConversationList from "./ConversationList";
-import MessageList from "./MessageList";
-import { getAddress, isAddress } from "viem";
-import { normalize } from "viem/ens";
-import { blo } from "blo";
+import { fetchMessagesBackend, getConversations } from "../services/fetchBackend";
+import { Conversation, Conversations, MessageRecord } from "../types/types";
+import ConversationList from "./Conversations/ConversationList";
+import MessageList from "./Conversations/MessageList";
 import { useGetConversationAvatars } from "../services/useAvatars";
-
+import { NoConversationSelected } from "./Conversations/NoConversationSelected"
+import { UploadToIpfsButton } from "./upload-to-ipfs-button";
+import { DeleteBackend } from "./deleteBackendButton";
+import { fetchMessagesIPFS, mergeIpfs } from "../services/fetchIPFS";
+import {abi as ethernalAbi} from '../../../../hardhat/artifacts/contracts/EthernalChat.sol/EthernalChat.json'
+import {CID} from "multiformats"
+import * as jsonCodec from 'multiformats/codecs/json'
+import { fromHex, hexToBytes, toHex } from "viem";
 
 const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
     const [address, setAdress] = useState("");
-    const { reRender: reRenderLotteryState, count: shouldReRender } = useReRender();
-
+    const { reRender: reFetchData, count: shouldReRender } = useReRender();
     const { targetNetwork } = useTargetNetwork();
-    const [conversations, setConversations] = useState<Conversation[]>([]);
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
-    const avatars = useGetConversationAvatars(account.address,conversations);
+    const [conversations, setConversations] = useState<Conversations>({});
+    const [messages, setMessages] = useState<Conversation>([]);
+    const [selectedConversation, setSelectedConversation] = useState<`0x${string}` | null>(null);
+    const avatars = useGetConversationAvatars(account.address, conversations);
+    const [cid, setCid] = useState<string | null>(null)
 
-    useEffect(() => {
+    const publicClient = usePublicClient();
+
+
+    useEffect(() => {       
         if (account.address) {
-            fetchConversations(account.address).then(setConversations);
+            Promise.all([fetchMessagesBackend(account.address),fetchMessagesIPFS(cid)])
+            .then(([backendMess,ipfsMess]) => mergeIpfs(getConversations((backendMess)),getConversations(ipfsMess,true)))
+            .then((conversation) => {
+                setConversations(conversation);
+                if (selectedConversation) {
+                    setMessages(conversation[selectedConversation]);
+                }
+            });
         }
-    }, [account]);
+    }, [account,cid, shouldReRender]);
 
-    const handleSelectConversation = (address: string) => {
+    const handleSelectConversation = (address: `0x${string}`) => {
         setSelectedConversation(address);
-        fetchMessages(address).then(setMessages);
+        setMessages(conversations[address]);
     };
+
+
+    const contractAddress = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9" ;
+    useEffect(() => {
+     if(publicClient) {
+            publicClient.readContract(
+                {
+                    abi:ethernalAbi,
+                    address: contractAddress,
+                    functionName:"getCID",
+                    args:[account.address]
+                }
+            ).then((res) => {
+                const bytes = fromHex(res as `0x${string}`,{
+                    size: 32,
+                    to: 'bytes'
+                  });
+                  
+                  if(!bytes.every(byte => byte === 0)){
+                    const prefix  = Buffer.from([18, 32]);
+                    const resultBuffer = Buffer.concat([prefix, Buffer.from(bytes)]);
+                    const _newCid = CID.decode(resultBuffer);
+                    const newCid = CID.createV1(jsonCodec.code,_newCid.multihash);                  
+                    setCid(newCid.toString());       
+                }           
+                
+            }
+            )
+        }
+
+
+    }, [])  
+
+
+    if (!account.address) {
+        return <></>
+    }
 
     return (
         <>
             <div className="content-container flex w-full h-full">
+
                 <div className="conversation-list flex-1 basis-1/3 p-4 m-2">
-                    <ConversationList  avatars={avatars} conversations={conversations} onSelectConversation={handleSelectConversation} selectedConversation={selectedConversation || ''} />
+                    <div className="card w-full  bg-primary text-primary-content mt-4 p-4">
+                        <div className="card-body">
+                            <h2 className="card-title">Conversations</h2>
+                        </div>
+                        <ConversationList setConversations={setConversations} setSelectedConversation={setSelectedConversation} avatars={avatars} conversations={conversations} onSelectConversation={handleSelectConversation} selectedConversation={selectedConversation || ''} />
+                        <div className="h-10"></div>
+                        {selectedConversation && messages?.length != 0 &&
+                            <div>
+                                <UploadToIpfsButton cid={cid} setCid={setCid} selectedConversation={selectedConversation} contractAddress={contractAddress}/>
+                                <div className="h-4"></div>
+                                <DeleteBackend selectedConversation={selectedConversation} reFetchData={reFetchData}/>
+                            </div>
+                        }
+                    </div>
                 </div>
                 <div className={`message-list flex-1 basis-2/3 p-4 m-2 ${!selectedConversation ? 'empty' : ''}`}>
-                    {selectedConversation ? (
-                        <MessageList messages={messages} avatars={avatars}/>
+                    {selectedConversation && messages ? (
+                        <MessageList address={selectedConversation} messages={messages} avatars={avatars} reFetchData={reFetchData} />
                     ) : (
-                        <div className="flex justify-center items-center h-full text-xl text-gray-500">
-                            Select a conversation or create a new one
-                        </div>
+                        <NoConversationSelected />
                     )}
                 </div>
             </div>

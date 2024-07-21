@@ -14,7 +14,7 @@ import useReRender from "~~/hooks/useReRender";
 import { LotteryAdmin } from "./components/LotteryAdmin";
 import { CloseLottery } from "./components/close-lottery";
 import {CheckWinnings} from "./components/check-winnings";
-import { UploadToIpfsButton } from "./components/upload-to-ipfs-button";
+import { UploadToIpfsButton } from "../chat/components/upload-to-ipfs-button";
 import messagesStructure from "../../utils/messages_structure.json";
 
 const Lottery: NextPage = () => {
