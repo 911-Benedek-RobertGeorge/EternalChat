@@ -41,8 +41,9 @@ export function mergeIpfs(data: Conversations, ipfsData: Conversations): Convers
                 ipfsData[key as `0x${string}`].push(message);
             }
 
-            ipfsData[key as `0x${string}`].sort((m1, m2) => m1.timestamp - m2.timestamp);
+
         }
+        ipfsData[key as `0x${string}`].sort((m1, m2) => m1.timestamp - m2.timestamp);
 
     }
 

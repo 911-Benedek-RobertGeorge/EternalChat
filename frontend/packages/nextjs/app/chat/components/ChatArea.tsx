@@ -29,7 +29,7 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
     const publicClient = usePublicClient();
 
 
-    useEffect(() => {        
+    useEffect(() => {       
         if (account.address) {
             Promise.all([fetchMessagesBackend(account.address),fetchMessagesIPFS(cid)])
             .then(([backendMess,ipfsMess]) => mergeIpfs(getConversations((backendMess)),getConversations(ipfsMess,true)))
@@ -48,14 +48,7 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
     };
 
 
-
-    const setCID = async () => {
-        console.log(`set the cid for the user`);
-        
-        
-    };
-
-    const contractAddress = "0x043076D405B95A050c9d833caCaFaE4058ff88F4" ;
+    const contractAddress = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9" ;
     useEffect(() => {
      if(publicClient) {
             publicClient.readContract(
@@ -72,10 +65,6 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
                   });
                   
                   if(!bytes.every(byte => byte === 0)){
-                    console.log("should be non zero");
-                    console.log(bytes);
-                    
-                    
                     const prefix  = Buffer.from([18, 32]);
                     const resultBuffer = Buffer.concat([prefix, Buffer.from(bytes)]);
                     const _newCid = CID.decode(resultBuffer);
