@@ -4,11 +4,11 @@ export interface MessageRecord {
   timestamp: number;
   direction: string;
 }
-import { MemoryBlockstore } from 'blockstore-core'
-import { MemoryDatastore } from 'datastore-core'
+import { FsBlockstore } from 'blockstore-fs'
+import { FsDatastore } from 'datastore-fs'
 
 export class GlobalService {
   static globalVar: Record<`0x${string}`, MessageRecord[]> = {};
-  static blockstore = new MemoryBlockstore();
-  static datastore = new MemoryDatastore();
+  static blockstore = new FsBlockstore('../data/blockstore');
+  static datastore = new FsDatastore('../data/datastore')
 }

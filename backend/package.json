@@ -25,7 +25,10 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.4.0",
+    "blockstore-fs": "^1.1.10",
+    "datastore-fs": "^9.1.8",
     "helia": "^4.0.1",
+    "interface-datastore": "^8.2.11",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1",
     "viem": "^2.17.5"

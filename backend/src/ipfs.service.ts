@@ -113,6 +113,7 @@ export class IpfsService {
 
     const j = json(this.helia)
     const obj = await j.get(CID.parse(cid))
+
     return obj
   }
 
