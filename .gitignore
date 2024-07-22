@@ -20,3 +20,17 @@ coverage.json
 .DS_Store
 
 .vscode/
+
+
+## IPFS
+# Ignore everything in blockstore and datastore
+data/blockstore/*
+data/datastore/*
+
+# But keep the directories
+!data/blockstore/
+!data/datastore/
+
+# Keep .gitkeep files to ensure the directories are tracked
+!data/blockstore/.gitkeep
+!data/datastore/.gitkeep
