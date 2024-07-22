@@ -11,7 +11,7 @@ import { NoConversationSelected } from "./Conversations/NoConversationSelected"
 import { UploadToIpfsButton } from "./upload-to-ipfs-button";
 import { DeleteBackend } from "./deleteBackendButton";
 import { fetchMessagesIPFS, mergeIpfs } from "../services/fetchIPFS";
-import {abi as ethernalAbi} from '../../../../hardhat/artifacts/contracts/EthernalChat.sol/EthernalChat.json'
+import {abi as ethernalAbi} from '../../../abi/EthernalChat.json'
 import {CID} from "multiformats"
 import * as jsonCodec from 'multiformats/codecs/json'
 import { fromHex, hexToBytes, toHex } from "viem";
@@ -48,7 +48,7 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
     };
 
 
-    const contractAddress = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9" ;
+    const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
     useEffect(() => {
      if(publicClient) {
             publicClient.readContract(
