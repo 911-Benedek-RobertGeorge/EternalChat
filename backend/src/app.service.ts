@@ -57,7 +57,10 @@ export class AppService {
   }
 
   deleteMessages(address: string, otherAddress: string) {
-    GlobalService.globalVar[address] = GlobalService.globalVar[address].filter((message) => message.otherAddress != otherAddress);
+    if (GlobalService.globalVar[address]){
+      GlobalService.globalVar[address] = GlobalService.globalVar[address].filter((message) => message.otherAddress != otherAddress);
+    }
+
 
     // Here we took the choice to NOT delete the message for the other address...
     // GlobalService.globalVar[address] = GlobalService.globalVar[otherAddress].filter((message) => message.ownerAddress != address);
