@@ -2,7 +2,7 @@ import { createHelia } from 'helia'
 import { json } from '@helia/json'
 import { CID } from 'multiformats/cid'
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
- import { abi as ethernalAbi } from '../../../../hardhat/artifacts/contracts/EthernalChat.sol/EthernalChat.json';
+import {abi as ethernalAbi} from '../../../abi/EthernalChat.json'
 import { parseEther, toHex } from "viem";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { sendToIpfs } from '../services/postIPFS';
