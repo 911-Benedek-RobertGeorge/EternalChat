@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     Chronos: {
-      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
       abi: [
         {
           inputs: [
@@ -652,7 +652,7 @@ const deployedContracts = {
       },
     },
     EthernalChat: {
-      address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       abi: [
         {
           inputs: [
@@ -1484,7 +1484,7 @@ const deployedContracts = {
       },
     },
     EthernalChat: {
-      address: "0x043076D405B95A050c9d833caCaFaE4058ff88F4",
+      address: "0xBA882C5F8EB1e02dF7AAAaBBC6eD0A449f59C2E9",
       abi: [
         {
           inputs: [
