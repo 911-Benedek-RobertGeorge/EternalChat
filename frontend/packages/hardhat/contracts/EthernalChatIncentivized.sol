@@ -57,18 +57,19 @@ contract EthernalChatIncentivized is Ownable {
 		bytes32 merkleRootOfAppendedData
 	) public {
 		require(cid != bytes32(0), "Invalid CID");
-		if (mapDataInfo[msg.sender].cid == bytes32(0)) {
+        DataInfo storage dataInfo = mapDataInfo[msg.sender];
+		if (dataInfo.cid == bytes32(0)) {
 			require(
 				newMerkleRoot == merkleRootOfAppendedData,
 				"MerkleRoot and MerkleRootOfAppendedData should be the same initially"
 			);
 		} else {
 			require(
-				(mapDataInfo[msg.sender].cid != bytes32(0) &&
+				(dataInfo.cid != bytes32(0) &&
 					newMerkleRoot ==
 					keccak256(
 						abi.encodePacked(
-							mapDataInfo[msg.sender].merkleRoot,
+							dataInfo.merkleRoot,
 							merkleRootOfAppendedData
 						)
 					)),
@@ -78,19 +79,19 @@ contract EthernalChatIncentivized is Ownable {
 
 		require(newMerkleRoot != bytes32(0), "Invalid Merkle Root");
 
-		mapDataInfo[msg.sender].cid = cid;
-		mapDataInfo[msg.sender].numberOfChunks = numberOfChunks;
-		mapDataInfo[msg.sender].sizeOfChunks = sizeOfChunks;
-		mapDataInfo[msg.sender].merkleRoot = newMerkleRoot;
-		mapDataInfo[msg.sender].timeRewardRedeemed = block.timestamp;
-		mapDataInfo[msg.sender].totalEthEarned += ETH_PER_CID;
+		dataInfo.cid = cid;
+		dataInfo.numberOfChunks = numberOfChunks;
+		dataInfo.sizeOfChunks = sizeOfChunks;
+		dataInfo.merkleRoot = newMerkleRoot;
+		dataInfo.timeRewardRedeemed = block.timestamp;
+		dataInfo.totalEthEarned += ETH_PER_CID;
 		emit CIDUpdated(msg.sender, cid);
 	}
 
 	/// @notice Add funds to an existing DataInfo by sending tokens and updating
 	/// @dev Make sure the DataInfo is non zero (has been already created)
 	function addFundsForStorage() public payable {
-		DataInfo memory dataInfo = mapDataInfo[msg.sender];
+		DataInfo storage dataInfo = mapDataInfo[msg.sender];
 		require(dataInfo.cid != bytes32(0), "DataInfo not found");
 		dataInfo.allocatedEth += msg.value;
 	}
@@ -116,7 +117,7 @@ contract EthernalChatIncentivized is Ownable {
 
 	/// @notice Allows storage to get a partial amount of reward in token, if it hasn't been already taken in this amount of time
 	function getStorageReward(address addr) public {
-		DataInfo memory dataInfo = mapDataInfo[addr];
+		DataInfo storage dataInfo = mapDataInfo[addr];
 		require(
 			block.timestamp >= dataInfo.timeRewardRedeemed + 1 days,
 			"Not Enough time has passed"
@@ -131,7 +132,7 @@ contract EthernalChatIncentivized is Ownable {
 
 	/// @notice Take out all the rewards in Eth based on the amount of tokens the address holds
 	function withdrawRewards() public {
-		DataInfo memory dataInfo = mapDataInfo[msg.sender];
+		DataInfo storage dataInfo = mapDataInfo[msg.sender];
 		uint256 amount = dataInfo.totalEthEarned;
 		require(amount > 0, "No rewards available");
 		require(
