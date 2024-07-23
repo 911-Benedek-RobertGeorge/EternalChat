@@ -57,19 +57,18 @@ contract EthernalChatIncentivized is Ownable {
 		bytes32 merkleRootOfAppendedData
 	) public {
 		require(cid != bytes32(0), "Invalid CID");
-		DataInfo memory dataInfo = mapDataInfo[msg.sender];
-		if (dataInfo.cid == bytes32(0)) {
+		if (mapDataInfo[msg.sender].cid == bytes32(0)) {
 			require(
-				dataInfo.merkleRoot == merkleRootOfAppendedData,
+				newMerkleRoot == merkleRootOfAppendedData,
 				"MerkleRoot and MerkleRootOfAppendedData should be the same initially"
 			);
 		} else {
 			require(
-				(dataInfo.cid != bytes32(0) &&
+				(mapDataInfo[msg.sender].cid != bytes32(0) &&
 					newMerkleRoot ==
 					keccak256(
 						abi.encodePacked(
-							dataInfo.merkleRoot,
+							mapDataInfo[msg.sender].merkleRoot,
 							merkleRootOfAppendedData
 						)
 					)),
@@ -79,12 +78,12 @@ contract EthernalChatIncentivized is Ownable {
 
 		require(newMerkleRoot != bytes32(0), "Invalid Merkle Root");
 
-		dataInfo.cid = cid;
-		dataInfo.numberOfChunks = numberOfChunks;
-		dataInfo.sizeOfChunks = sizeOfChunks;
-		dataInfo.merkleRoot = newMerkleRoot;
-		dataInfo.timeRewardRedeemed = block.timestamp;
-		dataInfo.totalEthEarned += ETH_PER_CID;
+		mapDataInfo[msg.sender].cid = cid;
+		mapDataInfo[msg.sender].numberOfChunks = numberOfChunks;
+		mapDataInfo[msg.sender].sizeOfChunks = sizeOfChunks;
+		mapDataInfo[msg.sender].merkleRoot = newMerkleRoot;
+		mapDataInfo[msg.sender].timeRewardRedeemed = block.timestamp;
+		mapDataInfo[msg.sender].totalEthEarned += ETH_PER_CID;
 		emit CIDUpdated(msg.sender, cid);
 	}
 

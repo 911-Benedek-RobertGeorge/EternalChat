@@ -14,7 +14,7 @@ async function deployContract() {
   let ethernalChat: EthernalChatIncentivized;
   const [owner, acc1, acc2] = await ethers.getSigners();
   const yourContractFactory = await ethers.getContractFactory("EthernalChatIncentivized");
-  ethernalChat = (await yourContractFactory.deploy(owner.address)) as EthernalChatIncentivized;
+  ethernalChat = (await yourContractFactory.deploy()) as EthernalChatIncentivized;
   await ethernalChat.waitForDeployment();
 
   return {
@@ -147,7 +147,6 @@ describe("EthernalChatIncentivized", function () {
   
     const cidHash  = await Hash.of(processedData);
     const cid = CID.parse(cidHash);
-    console.log(cid);
     
     const cidBytes = CidToBytes(cid);
   
@@ -172,11 +171,14 @@ describe("EthernalChatIncentivized", function () {
       const numChunks = 2n;
       const {processedData,cidBytes,merkleRoot, chunkSize, cid} = await getCidAndData(data,numChunks)
 
-
-      await ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot,merkleRoot);
+      const response = await ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot,merkleRoot);
+      console.log(response.toJSON());
+      console.log(acc1.address);
+      
+      response.wait();
       const storedCidString = await ethernalChatAcc1.getCID() 
       const storedCid= bytesToCid(storedCidString);
-      expect(cid).to.eqls(storedCid);
+      expect(cid.multihash.bytes).to.eqls(storedCid.multihash.bytes);
     });
 
     it("should revert if the merkle roots doesn't match for the first time", async function () {
@@ -186,9 +188,9 @@ describe("EthernalChatIncentivized", function () {
       const data2 = [{"test":2}];
       const numChunks = 2n;
       const {processedData,cidBytes,merkleRoot, chunkSize} = await getCidAndData(data,numChunks)
-      const {merkleRoot: fakeMerkleRoot} = await getCidAndData(data,numChunks)
-
-      await expect(ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot,fakeMerkleRoot)).to.be.rejected;
+      const {merkleRoot: fakeMerkleRoot} = await getCidAndData(data2,numChunks)
+      expect(merkleRoot).to.not.equals(fakeMerkleRoot);
+      await expect(ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot,fakeMerkleRoot)).to.be.rejectedWith("MerkleRoot and MerkleRootOfAppendedData should be the same initially");
     });
 
     // it("should add new CID when appending data and check the hashes when appending", async function () {
@@ -203,9 +205,9 @@ describe("EthernalChatIncentivized", function () {
     //   await expect(ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot,fakeMerkleRoot)).to.be.rejected;
     // });
 
-    it("should revert if the data has been modified", async function () {
-      // expect(await ethernalChat.greeting()).to.equal("Building Unstoppable Apps!!!");
-    });
+    // it("should revert if the data has been modified", async function () {
+    //   // expect(await ethernalChat.greeting()).to.equal("Building Unstoppable Apps!!!");
+    // });
 
   });
 });
