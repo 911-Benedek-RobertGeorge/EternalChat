@@ -57,11 +57,14 @@ contract EthernalChatIncentivized is Ownable {
 		bytes32 merkleRootOfAppendedData
 	) public {
 		require(cid != bytes32(0), "Invalid CID");
-		// require(timeRewardRedeemed == block.timestamp);
 		DataInfo memory dataInfo = mapDataInfo[msg.sender];
-		require(
-			(dataInfo.cid == bytes32(0) &&
-				dataInfo.merkleRoot == merkleRootOfAppendedData) ||
+		if (dataInfo.cid == bytes32(0)) {
+			require(
+				dataInfo.merkleRoot == merkleRootOfAppendedData,
+				"MerkleRoot and MerkleRootOfAppendedData should be the same initially"
+			);
+		} else {
+			require(
 				(dataInfo.cid != bytes32(0) &&
 					newMerkleRoot ==
 					keccak256(
@@ -70,8 +73,10 @@ contract EthernalChatIncentivized is Ownable {
 							merkleRootOfAppendedData
 						)
 					)),
-			"Data not appended correctly"
-		);
+				"Data not appended correctly"
+			);
+		}
+
 		require(newMerkleRoot != bytes32(0), "Invalid Merkle Root");
 
 		dataInfo.cid = cid;
