@@ -45,6 +45,7 @@
   "dependencies": {
     "@helia/json": "^3.0.4",
     "helia": "^4.2.4",
-    "multiformats": "^13.1.3"
+    "multiformats": "^13.1.3",
+    "typechain-types": "^0.0.1"
   }
 }
