@@ -40,6 +40,7 @@
     "hardhat-deploy": "^0.11.45",
     "hardhat-deploy-ethers": "^0.4.1",
     "hardhat-gas-reporter": "^1.0.9",
+    "multiformats": "^9.9.0",
     "prettier": "^3.3.2",
     "solidity-coverage": "^0.8.5",
     "ts-node": "^10.9.1",
@@ -51,6 +52,8 @@
     "@typechain/ethers-v6": "^0.5.1",
     "dotenv": "^16.0.3",
     "envfile": "^6.18.0",
-    "qrcode": "^1.5.1"
+    "ipfs-only-hash": "^4.0.0",
+    "qrcode": "^1.5.1",
+    "viem": "^2.17.10"
   }
 }
