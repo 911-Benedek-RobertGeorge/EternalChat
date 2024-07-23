@@ -16,12 +16,7 @@ async function bootstrap() {
     'https://eternal-chat.vercel.app', // Production URL
     'http://localhost:3001',           // Local development URL
   ];
-
-  app.enableCors({
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-  });
+  app.enableCors();
   await app.listen(3000);
 }
 bootstrap().catch((err) => {
