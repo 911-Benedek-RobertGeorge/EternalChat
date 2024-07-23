@@ -5,6 +5,7 @@ import { normalize } from "viem/ens";
 import { Address, getAddress, isAddress } from "viem";
 import { blo } from "blo";
 import { SendMessage } from "./SendMessage";
+import { Avatar } from "./Avatar";
 
 interface MessageListProps {
     address:  `0x${string}`;
@@ -29,9 +30,10 @@ const MessageList: React.FC<MessageListProps> = ({address, messages, avatars, re
                     <div key={index} className={`chat ${message.direction == 'outgoing' ? "chat-end" : "chat-start"}`}>
                         <div className="chat-image avatar">
                             <div className="w-10 rounded-full">
-                                <img
+                                {/* <img
                                     alt="Tailwind CSS chat bubble component"
-                                    src={avatars[address]} />
+                                    src={avatars[address]} /> */}
+                                    <Avatar address={message.direction == 'outgoing' ? accAddress: address} size="xs"/>
                             </div>
                         </div>
                         <div className="chat-header">

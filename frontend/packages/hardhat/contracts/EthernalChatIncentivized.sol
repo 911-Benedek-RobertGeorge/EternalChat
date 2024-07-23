@@ -43,7 +43,7 @@ contract EthernalChatIncentivized is Ownable {
 	/// @notice Sets the CID (Content Identifier) for the sender of the transaction.
 	/// @param cid The CID to set for the user.
 	/// @param numberOfChunks The number of chunks we divided the data for the storage proof.
-	/// @param sizeOfChunks The (maximum) size of each chunks.
+	/// @param sizeOfChunks The size of each chunks. (Padding need to be applied for the last chunk if necessary)
 	/// @param newMerkleRoot The calculated merkle root corresponding of the hash of each chunks, then the hash of each chunk concatenated 2-by-2...
 	/// @param merkleRootOfAppendedData This is to verify we only append new data: for the first time this would be equals to newMerkleRoot
 	/// @dev Make sure the data is always greater than the previous one as we don't allow deletion of data.
@@ -57,10 +57,10 @@ contract EthernalChatIncentivized is Ownable {
 		bytes32 merkleRootOfAppendedData
 	) public {
 		require(cid != bytes32(0), "Invalid CID");
-		DataInfo memory dataInfo = mapDataInfo[msg.sender];
+        DataInfo storage dataInfo = mapDataInfo[msg.sender];
 		if (dataInfo.cid == bytes32(0)) {
 			require(
-				dataInfo.merkleRoot == merkleRootOfAppendedData,
+				newMerkleRoot == merkleRootOfAppendedData,
 				"MerkleRoot and MerkleRootOfAppendedData should be the same initially"
 			);
 		} else {
@@ -91,7 +91,7 @@ contract EthernalChatIncentivized is Ownable {
 	/// @notice Add funds to an existing DataInfo by sending tokens and updating
 	/// @dev Make sure the DataInfo is non zero (has been already created)
 	function addFundsForStorage() public payable {
-		DataInfo memory dataInfo = mapDataInfo[msg.sender];
+		DataInfo storage dataInfo = mapDataInfo[msg.sender];
 		require(dataInfo.cid != bytes32(0), "DataInfo not found");
 		dataInfo.allocatedEth += msg.value;
 	}
@@ -117,7 +117,7 @@ contract EthernalChatIncentivized is Ownable {
 
 	/// @notice Allows storage to get a partial amount of reward in token, if it hasn't been already taken in this amount of time
 	function getStorageReward(address addr) public {
-		DataInfo memory dataInfo = mapDataInfo[addr];
+		DataInfo storage dataInfo = mapDataInfo[addr];
 		require(
 			block.timestamp >= dataInfo.timeRewardRedeemed + 1 days,
 			"Not Enough time has passed"
@@ -132,7 +132,7 @@ contract EthernalChatIncentivized is Ownable {
 
 	/// @notice Take out all the rewards in Eth based on the amount of tokens the address holds
 	function withdrawRewards() public {
-		DataInfo memory dataInfo = mapDataInfo[msg.sender];
+		DataInfo storage dataInfo = mapDataInfo[msg.sender];
 		uint256 amount = dataInfo.totalEthEarned;
 		require(amount > 0, "No rewards available");
 		require(

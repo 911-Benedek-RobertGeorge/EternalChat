@@ -2,17 +2,17 @@ import React, { Dispatch, SetStateAction } from "react";
 import { Avatar } from "./Avatar";
 import { Conversations } from "../../types/types";
 import {CreateConversation } from "./CreateConversation"
+import { Address } from "~~/components/scaffold-eth";
 
 interface ConversationListProps {
     conversations: Conversations;
     selectedConversation: string;
     onSelectConversation: (address: `0x${string}`) => void;
-    avatars: { [address: `0x${string}`]: string };
     setConversations: Dispatch<SetStateAction<Conversations>>;
     setSelectedConversation: Dispatch<SetStateAction<`0x${string}` | null>>;
 }
 
-const ConversationList: React.FC<ConversationListProps> = ({ conversations, onSelectConversation, selectedConversation, avatars,setConversations,setSelectedConversation }) => {
+const ConversationList: React.FC<ConversationListProps> = ({ conversations, onSelectConversation, selectedConversation,setConversations,setSelectedConversation }) => {
     return (
 <>
             <div className="overflow-x-auto">
@@ -29,11 +29,7 @@ const ConversationList: React.FC<ConversationListProps> = ({ conversations, onSe
 
                                 <td>
                                     <div className="flex items-center gap-3">
-                                        <Avatar avatar={avatars[address as `0x${string}`]} />
-                                        <div>
-                                            <div className="font-bold">{address}</div>
-                                            {/* <div className="text-sm opacity-50">United States</div> */}
-                                        </div>
+                                        <Address address={address as `0x${string}`} disableAddressLink={true} size="xl"/>
                                     </div>
                                 </td>
                                 <td>
