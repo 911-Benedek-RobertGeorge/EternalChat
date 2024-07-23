@@ -138,11 +138,20 @@ function unchunkData(chunks: string[], padChar = '~') {
 
 describe("EthernalChatIncentivized", function () {
 
-  async function getCidAndData(data: any,numChunks: bigint){
+  async function getCidAndData(data: any,numChunks?: bigint, chunkSize?: bigint){
 
     const dataJson = JSON.stringify(data);
     const size = BigInt(new Blob([dataJson]).size);
-    const chunkSize = size / numChunks;
+    if (!chunkSize && numChunks){
+      chunkSize = size / numChunks;
+    } else if(chunkSize){
+      numChunks = size / chunkSize ;
+      if (size % chunkSize != 0n){
+        numChunks += 1n
+      }
+    } else {
+      throw Error("numChunks or ChunkSize should be specified")
+    }
     const processedData= preprocessData(dataJson,Number(chunkSize))
   
     const cidHash  = await Hash.of(processedData);
@@ -157,11 +166,54 @@ describe("EthernalChatIncentivized", function () {
       cidBytes,
       cid,
       merkleRoot,
-      chunkSize
+      chunkSize,
+      numChunks
     }
   }
-  
 
+  async function appendData(prevMerkle: string, prevData: any , data2: any, chunkSize: number) {
+    // Preprocess the new data
+    const data2Json = JSON.stringify(data2);
+    const preprocessedData2 = preprocessData(data2Json, chunkSize);
+
+    // Combine the previous processed data with the new preprocessed data
+    const prevDataJson = JSON.stringify(prevData);
+    const preprocessedData = preprocessData(prevDataJson, chunkSize);
+    const combinedData = preprocessedData + preprocessedData2;
+
+    // Chunk the combined data
+    const combinedChunks = chunkData(combinedData, chunkSize);
+    const numChunks = combinedChunks.length;
+
+    // Calculate the new Merkle root
+    const newHashes = combinedChunks.map(hashChunk);
+    const newMerkleRoot = calculateMerkleRoot(newHashes);
+
+    // Calculate the Merkle root of the appended data
+    const appendedHashes = chunkData(preprocessedData2, chunkSize).map(hashChunk);
+    const merkleRootOfAppendedData = calculateMerkleRoot(appendedHashes);
+
+    const cidHash  = await Hash.of(combinedData);
+    const cid = CID.parse(cidHash);
+    
+    const cidBytes = CidToBytes(cid);
+
+     // Ensure the concatenation of the old Merkle root and the Merkle root of the new data matches the new Merkle root
+     const combinedRootHash = keccak256(Buffer.concat([
+      Buffer.from(prevMerkle.slice(2), 'hex'),
+      Buffer.from(merkleRootOfAppendedData.slice(2), 'hex')
+  ]));
+
+  expect(newMerkleRoot).to.equal(combinedRootHash, "Data not appended correctly");
+
+    return {
+        combinedData,
+        newMerkleRoot,
+        merkleRootOfAppendedData,
+        newCid: cidBytes,
+        newNumChunks: numChunks
+    };
+}
 
   describe("SetCID", function () {
     it("should properly add a CID for the first time", async function () {
@@ -172,9 +224,6 @@ describe("EthernalChatIncentivized", function () {
       const {processedData,cidBytes,merkleRoot, chunkSize, cid} = await getCidAndData(data,numChunks)
 
       const response = await ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot,merkleRoot);
-      console.log(response.toJSON());
-      console.log(acc1.address);
-      
       response.wait();
       const storedCidString = await ethernalChatAcc1.getCID() 
       const storedCid= bytesToCid(storedCidString);
@@ -193,17 +242,23 @@ describe("EthernalChatIncentivized", function () {
       await expect(ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot,fakeMerkleRoot)).to.be.rejectedWith("MerkleRoot and MerkleRootOfAppendedData should be the same initially");
     });
 
-    // it("should add new CID when appending data and check the hashes when appending", async function () {
-    //   const {ethernalChat, jsonHelia, acc1} = await loadFixture(deployContract);
-    //   const ethernalChatAcc1 = ethernalChat.connect(acc1)
-    //   const data = {"test":1};
-    //   const data2 = {"test":2};
-    //   const numChunks = 2n;
-    //   const {processedData,cidBytes,merkleRoot, chunkSize} = await getCidAndData(data,jsonHelia,numChunks)
-    //   const {merkleRoot: fakeMerkleRoot} = await getCidAndData(data,jsonHelia,numChunks)
+    it("should add new CID when appending data and check the hashes when appending", async function () {
+      const {ethernalChat, acc1} = await loadFixture(deployContract);
+      const ethernalChatAcc1 = ethernalChat.connect(acc1)
+      const data = [{"test":1}];
+      const appendedData = [{"test2":2}]
+      const numChunks = 2n;
+      const {processedData,cidBytes,merkleRoot, chunkSize} = await getCidAndData(data,numChunks)
+      await ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot,merkleRoot);
 
-    //   await expect(ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot,fakeMerkleRoot)).to.be.rejected;
-    // });
+      const {combinedData, newMerkleRoot, merkleRootOfAppendedData, newCid, newNumChunks} = await appendData(merkleRoot,data,appendedData,Number(chunkSize));
+
+      await expect(ethernalChatAcc1.setCID(newCid,newNumChunks,chunkSize,newMerkleRoot,merkleRootOfAppendedData)).to.not.be.rejected;
+      const storedCidString = await ethernalChatAcc1.getCID();
+      expect(newCid).to.eqls(storedCidString);
+
+      
+    });
 
     // it("should revert if the data has been modified", async function () {
     //   // expect(await ethernalChat.greeting()).to.equal("Building Unstoppable Apps!!!");
