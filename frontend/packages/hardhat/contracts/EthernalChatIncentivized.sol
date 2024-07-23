@@ -23,10 +23,7 @@ contract EthernalChatIncentivized is Ownable {
     }
 
     /// @notice Mapping of CID/DataInfo of the stored messages for each account
-    mapping(address => DataInfo) private mapDataInfo; 
-
-	/// @notice Address of the token used as payment for storing the messages
-    IERC20 public paymentToken;
+    mapping(address => DataInfo) private mapDataInfo;
 
     /// @notice Amount of tokens required for storing a message
     event CIDUpdated(address indexed user, bytes32 cid);
@@ -41,14 +38,14 @@ contract EthernalChatIncentivized is Ownable {
 	constructor(
         address tokenContractAddress 
 	) Ownable(msg.sender) {
-        paymentToken = IERC20(tokenContractAddress);
+
 	}
 
     
      /// @notice Sets the CID (Content Identifier) for the sender of the transaction. 
      /// @param cid The CID to set for the user.
      /// @param numberOfChunks The number of chunks we divided the data for the storage proof.
-     /// @param sizeOfChunks The (maximum) size of each chunks.
+     /// @param sizeOfChunks The size of each chunks. (Padding need to be applied for the last chunk if necessary)
      /// @param newMerkleRoot The calculated merkle root corresponding of the hash of each chunks, then the hash of each chunk concatenated 2-by-2...
      /// @param merkleRootOfAppendedData This is to verify we only append new data: for the first time this would be equals to newMerkleRoot
      /// @dev Make sure the data is always greater than the previous one as we don't allow deletion of data.
