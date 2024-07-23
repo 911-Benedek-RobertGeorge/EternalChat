@@ -15,7 +15,7 @@ contract EthernalChatIncentivized is Ownable {
 		uint64 numberOfChunks;
 		uint64 sizeOfChunks; // Help checking the size of the data during proof verification
 		//  Address of the storage provider we want to incentivize
-		address storageProvider; // This could be a list
+		address storageProvider; // This could be a list but for now only one
 		uint256 timeRewardRedeemed;
 		uint256 totalEthEarned; // total eth earned per stored messages for each account
 		uint256 allocatedEth;
@@ -42,7 +42,7 @@ contract EthernalChatIncentivized is Ownable {
 
 	/// @notice Sets the CID (Content Identifier) for the sender of the transaction.
 	/// @param cid The CID to set for the user.
-	/// @param numberOfChunks The number of chunks we divided the data for the storage proof.
+	/// @param numberOfChunks The number of chunks we divided the data for the storage proof. (Total number of chunks)
 	/// @param sizeOfChunks The size of each chunks. (Padding need to be applied for the last chunk if necessary)
 	/// @param newMerkleRoot The calculated merkle root corresponding of the hash of each chunks, then the hash of each chunk concatenated 2-by-2...
 	/// @param merkleRootOfAppendedData This is to verify we only append new data: for the first time this would be equals to newMerkleRoot
@@ -63,10 +63,11 @@ contract EthernalChatIncentivized is Ownable {
 				newMerkleRoot == merkleRootOfAppendedData,
 				"MerkleRoot and MerkleRootOfAppendedData should be the same initially"
 			);
+            // We define the size of chunks only the first time
+            dataInfo.sizeOfChunks = sizeOfChunks;
 		} else {
 			require(
-				(dataInfo.cid != bytes32(0) &&
-					newMerkleRoot ==
+				(newMerkleRoot ==
 					keccak256(
 						abi.encodePacked(
 							dataInfo.merkleRoot,
@@ -75,18 +76,28 @@ contract EthernalChatIncentivized is Ownable {
 					)),
 				"Data not appended correctly"
 			);
+            require(
+				dataInfo.sizeOfChunks == sizeOfChunks,
+				"Size of Chunks doesn't match the previous one"
+			);
+            require(
+				dataInfo.numberOfChunks < numberOfChunks,
+				"The new numberOfChunks must be higher than the previous one"
+			);
 		}
 
 		require(newMerkleRoot != bytes32(0), "Invalid Merkle Root");
 
 		dataInfo.cid = cid;
 		dataInfo.numberOfChunks = numberOfChunks;
-		dataInfo.sizeOfChunks = sizeOfChunks;
 		dataInfo.merkleRoot = newMerkleRoot;
 		dataInfo.timeRewardRedeemed = block.timestamp;
 		dataInfo.totalEthEarned += ETH_PER_CID;
 		emit CIDUpdated(msg.sender, cid);
 	}
+
+
+    // Set Storage Provider (or update it)
 
 	/// @notice Add funds to an existing DataInfo by sending tokens and updating
 	/// @dev Make sure the DataInfo is non zero (has been already created)
@@ -143,4 +154,5 @@ contract EthernalChatIncentivized is Ownable {
 		(bool success, ) = payable(msg.sender).call{ value: amount }("");
 		require(success);
 	}
+    
 }
