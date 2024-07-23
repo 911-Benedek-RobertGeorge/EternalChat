@@ -18,14 +18,8 @@ async function bootstrap() {
   ];
 
   app.enableCors({
-    origin: (origin, callback) => {
-      if (allowedOrigins.includes(origin) || !origin) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
   await app.listen(3000);
