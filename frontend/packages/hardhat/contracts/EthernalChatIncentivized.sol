@@ -110,9 +110,9 @@ contract EthernalChatIncentivized is Ownable {
 	/// @notice Retrieves the CID (Content Identifier) stored for the user.
 	/// @return The CID associated with the user.
 	/// @dev Passes when the user has a CID stored. This function is view only, so it doesn't modify the state of the contract
-	function getCID() public view returns (bytes32) {
-		DataInfo memory dataInfo = mapDataInfo[msg.sender];
-		require(dataInfo.cid != bytes32(0), "No CID found for this address");
+	function getCID(address addr) public view returns (bytes32) {
+		DataInfo memory dataInfo = mapDataInfo[addr];
+		// require(dataInfo.cid != bytes32(0), "No CID found for this address"); // IMO should be the frontend who handle that
 		return dataInfo.cid;
 	}
 

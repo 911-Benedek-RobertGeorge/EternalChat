@@ -1,22 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { HeliaLibp2p } from 'helia';
 import { GlobalService, MessageRecord } from './global.service.js';
-
-// Remove the last ']' to be able to append properly data
-// In order to be coherent, we also remove the first '['
-function preprocessData(jsonString) {
-  if (jsonString.startsWith('[') && jsonString.endsWith(']')) {
-      return jsonString.slice(1, -1);
-  } else {
-      throw new Error('Invalid JSON array format');
-  }
-}
-
-// Add the last ']'
-// In order to match the coherence of the preprocessData we also add the first '['
-function postprocessData(string) {
-  return '[' + string + ']';
-}
+import { DataProcessing } from './utils/dataProcessing.js';
 
 @Injectable()
 export class IpfsService {
@@ -80,7 +65,8 @@ export class IpfsService {
     }
   }
 
-  async postToIPFS(ownerAddress: string, otherAddress: string, previousCid: string) {
+  async postToIPFS(ownerAddress: string, otherAddress: string, previousCid: string, chunkSize: number) {
+    const p = new DataProcessing()
     const { json } = await import('@helia/json');
     if (this.helia == null) {
       await this.createHeliaInstance();
@@ -88,17 +74,19 @@ export class IpfsService {
 
     const j = json(this.helia)
 
-    const data = GlobalService.globalVar[ownerAddress].filter((message: MessageRecord) => message.otherAddress == otherAddress);
+    const data = GlobalService.globalVar[ownerAddress]?.filter((message: MessageRecord) => message.otherAddress == otherAddress);
     if (!data) {
-      return null
+      return {cid: null}
     }
 
     let newData : MessageRecord[] = data.slice();
+    let oldData : MessageRecord[] = [];
 
     if(previousCid && previousCid != null){
       const { CID } = await import('multiformats/cid')
-      const obj : MessageRecord[] = JSON.parse(postprocessData(await j.get(CID.parse(previousCid))));
-      newData = obj;
+      const obj : MessageRecord[] = JSON.parse(p.postprocessData(await j.get(CID.parse(previousCid)),chunkSize));
+      oldData = obj;
+      newData = [];
     
       for (const elem of data){
         const exists = obj.some((item) => JSON.stringify(item) === JSON.stringify(elem));
@@ -108,18 +96,24 @@ export class IpfsService {
       }
     }
 
-    const cid = await j.add(preprocessData(JSON.stringify(newData)))
+    const {combinedData,newMerkleRoot, merkleRootOfAppendedData, newNumChunks} = await p.appendData(oldData,newData,chunkSize)
+    console.log(combinedData);
+    
+    const cid = await j.add(combinedData)
     console.log(cid);
 
     const result = await this.helia.pins.add(cid, { depth: 100 });
     console.log("content pinned with CID", cid.toString())
 
-    return cid.toString();
+    return {cid: cid.toString(), newMerkleRoot, merkleRootOfAppendedData, newNumChunks};
 
 
   }
 
-  async getFromCid(cid: string) {
+  async getFromCid(cid: string, chunkSize: number) {
+    console.log("getting cid:", cid);
+    
+    const p = new DataProcessing()
     const { json } = await import('@helia/json');
     const { CID } = await import('multiformats/cid')
     if (this.helia == null) {
@@ -127,8 +121,9 @@ export class IpfsService {
     }
 
     const j = json(this.helia)
-    const obj = await j.get(CID.parse(cid))
-    const newobjJson = postprocessData(obj)
+    const obj :string = await j.get(CID.parse(cid))
+    const newobjJson = p.postprocessData(obj,chunkSize)
+    console.log(newobjJson);
     
     return newobjJson
   }

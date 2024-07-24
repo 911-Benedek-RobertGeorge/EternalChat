@@ -2,14 +2,14 @@ import { createHelia } from 'helia'
 import { json } from '@helia/json'
 import { CID } from 'multiformats/cid'
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import {abi as ethernalAbi} from '../../../abi/EthernalChat.json'
+import {abi as ethernalAbi} from '../../../abi/EthernalChatIncentivized.json'
 import { parseEther, toHex } from "viem";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { sendToIpfs } from '../services/postIPFS';
 import { getBlockExplorerTxLink } from '~~/utils/scaffold-eth';
 import { getChainFromEnv } from '~~/utils/getChain';
  
-export function UploadToIpfsButton({selectedConversation, cid, setCid, contractAddress}: { contractAddress:string, selectedConversation: string, cid: string | null , setCid: Dispatch<SetStateAction<string | null>>})   {
+export function UploadToIpfsButton({selectedConversation, cid, setCid, contractAddress, chunkSize}: { contractAddress:string, selectedConversation: string, cid: string | null , setCid: Dispatch<SetStateAction<string | null>>, chunkSize:number})   {
   const {address: accountAddress} = useAccount();
   const { writeContractAsync } = useWriteContract();
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +23,7 @@ export function UploadToIpfsButton({selectedConversation, cid, setCid, contractA
   }
 
 
-  const handleSendToContract= async (newCid: string) => {
+  const handleSendToContract= async (newCid: string,newMerkleRoot:`0x${string}`, merkleRootOfAppendedData:`0x${string}`, newNumChunks:number,chunkSize:number) => {
     if(newCid != cid){
     const cidObj = CID.parse(newCid);    
     const cidBytes = cidObj.multihash.bytes.slice(2);
@@ -37,7 +37,7 @@ export function UploadToIpfsButton({selectedConversation, cid, setCid, contractA
         abi: ethernalAbi,
         address: contractAddress as `0x${string}`,
         functionName: 'setCID',
-        args: [hexString],
+        args: [hexString,newNumChunks, chunkSize, newMerkleRoot, merkleRootOfAppendedData],
         })
         .catch((e: Error) => {
             console.log("ERROR occured : ", e.message);
@@ -57,7 +57,7 @@ export function UploadToIpfsButton({selectedConversation, cid, setCid, contractA
 return (    
     <div> 
     
-    <button className='btn glass ' onClick={() => sendToIpfs(accountAddress, selectedConversation, cid).then((newCid) => {setCid(newCid); handleSendToContract(newCid);})
+    <button className='btn glass ' onClick={() => sendToIpfs(accountAddress, selectedConversation, cid).then(({cid:newCid,newMerkleRoot, merkleRootOfAppendedData, newNumChunks}) => {setCid(newCid); if(newCid){handleSendToContract(newCid,newMerkleRoot, merkleRootOfAppendedData, newNumChunks, chunkSize);}})
     }> Save selected conversation to IPFS</button>
     {cid && <div> Uploaded to IPFS with CID: {cid.toString()}</div>}
     {tx && <label className="label flex flex-col">
