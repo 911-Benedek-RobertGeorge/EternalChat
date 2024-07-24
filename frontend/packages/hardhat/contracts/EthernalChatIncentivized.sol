@@ -16,15 +16,25 @@ contract EthernalChatIncentivized is Ownable {
 		uint64 numberOfChunks;
 		//  Address of the storage provider we want to incentivize
 		address storageProvider; // This could be a list but for now only one
-		uint256 lastTimeRewardRedeemed;
-		uint256 totalEthEarned; // total eth earned per stored messages for each account
+		uint64 lastChallengeIndex;
+		uint256 lastTimeRewardRedeemed; // Represent the last time the storageProvider redeemed a reward with a challenge
 		uint256 allocatedEth;
+		uint256 ethSpent; // total eth earned by storage providers (spent by the user)
+
+	}
+
+	struct ProviderInfo{
+		uint256 totalEthEarned;
 		uint256 lastWithdrawTime;
 	}
-	/// @notice Amount of eth earned for storing a message
-	uint256 public constant ETH_PER_CID = 0.01 ether;
+
+	/// @notice Amount of eth earned for storing files per day
+	uint256 public constant PRICE_PER_DAY = 0.0001 ether;
 	/// @notice Mapping of CID/DataInfo of the stored messages for each account
 	mapping(address => DataInfo) private mapDataInfo;
+	
+	/// @notice Mapping of the storage providers rewards info
+	mapping(address => ProviderInfo) private mapProviderInfo;
 
 	/// @notice Amount of tokens required for storing a message
 	event CIDUpdated(address indexed user, bytes32 cid);
@@ -60,10 +70,6 @@ contract EthernalChatIncentivized is Ownable {
 		dataInfo.numberOfChunks = numberOfChunks;
 		dataInfo.merkleRoot = newMerkleRoot;
 
-		if(dataInfo.lastWithdrawTime == 0){
-			dataInfo.lastWithdrawTime = block.timestamp;
-		}
-
 		emit CIDUpdated(msg.sender, cid);
 	}
 
@@ -96,42 +102,91 @@ contract EthernalChatIncentivized is Ownable {
 		return dataInfo.cid;
 	}
 
+	// Storage Provider functions
+
+	/// @notice Get the challenger for the proof of Storage to use with getStorageReward.
+	/// @param addr Address of the account you are trying to get a challenge from.
+	/// @return index that represent the provider needs to reveal the data from.
 	function getChallenge(
 		address addr
-	) public view OnlyStorageProvider(addr) returns (uint64 index) {
+	) public OnlyStorageProvider(addr) returns (uint64 index) {
+		 DataInfo storage dataInfo = mapDataInfo[addr];
 		require(
-			mapDataInfo[addr].cid != bytes32(0),
+			dataInfo.cid != bytes32(0),
 			"No DataInfo found for this address"
 		);
-		index = uint64(block.prevrandao) % mapDataInfo[addr].numberOfChunks;
+		require(
+			dataInfo.lastChallengeIndex == 0,
+			"You already asked for a challenge"
+		);
+		index = uint64(block.prevrandao) % dataInfo.numberOfChunks;
+		dataInfo.lastChallengeIndex = index;
 	}
 
-	/// @notice Allows storage to get a partial amount of reward in token, if it hasn't been already taken in this amount of time
-	function getStorageReward(address addr) public {
+
+	function verifyStorageProof(uint index, bytes32 merkleRoot, bytes memory chunkData, bytes32[] memory hashes) internal pure returns(bool){ 
+		bytes32 chunkHash =  keccak256(chunkData);
+		for(uint i = 0 ; i <  hashes.length ; i++ ){
+			if(index % 2 == 0){
+				chunkHash = keccak256(abi.encodePacked(chunkHash,hashes[i]));
+			} else {
+				chunkHash = keccak256(abi.encodePacked(hashes[i],chunkHash));
+			}
+			index = index / 2;
+		}
+		return chunkHash == merkleRoot;
+	}
+
+	/// @notice Allows storage to reedem a partial amount of reward in token by answering to the challenge. They can do it only once per day.
+	/// The full reedmed amount can be withdraw after a month (30days) since lastWithdrawTime see withdrawRewards()
+	/// @param addr Address of the account you are trying to get the reward from.
+	/// @param hashes Array of hashes allowing the proof : it should be ordered by the level in the merkle tree from the leafs.
+	///  it should allow the proof to pass.
+	function getStorageReward(address addr, bytes memory chunkData, bytes32[] memory hashes) public OnlyStorageProvider(addr) {
 		DataInfo storage dataInfo = mapDataInfo[addr];
-		require(
-			block.timestamp >= dataInfo.lastTimeRewardRedeemed + 1 days,
-			"Not Enough time has passed"
-		);
+		ProviderInfo storage providerInfo = mapProviderInfo[dataInfo.storageProvider];
 		require(
 			mapDataInfo[addr].cid != bytes32(0),
 			"No DataInfo store by this address"
 		);
-		//require the proofOfChallenge
+		require(
+			block.timestamp >= dataInfo.lastTimeRewardRedeemed + 1 days,
+			"Not Enough time has passed"
+		);
+
+		require(
+			dataInfo.ethSpent + PRICE_PER_DAY <= dataInfo.allocatedEth,
+			"The user hasn't allocated enough eth"
+		);
+
+		require(
+			2**(hashes.length) == dataInfo.numberOfChunks + dataInfo.numberOfChunks % 2,
+			"The number of hashes necessary for the proof is not matching ceil[log2(numberOfChunks)]"
+		);
+
+		require(
+			verifyStorageProof(dataInfo.lastChallengeIndex,dataInfo.merkleRoot,chunkData,hashes),
+			"The proof of Storage is incorrect"
+		);
+
 		dataInfo.lastTimeRewardRedeemed = block.timestamp;
-		dataInfo.totalEthEarned += ETH_PER_CID / 30;
+		dataInfo.lastChallengeIndex = 0;
+		dataInfo.ethSpent += PRICE_PER_DAY;
+
+		providerInfo.totalEthEarned += PRICE_PER_DAY;
+		
 	}
 
 	/// @notice Take out all the rewards in Eth based on the amount of tokens the address holds
 	function withdrawRewards() public {
-		DataInfo storage dataInfo = mapDataInfo[msg.sender];
-		uint256 amount = dataInfo.totalEthEarned;
+		ProviderInfo storage provider = mapProviderInfo[msg.sender];
+		uint256 amount = provider.totalEthEarned;
 		require(amount > 0, "No rewards available");
 		require(
-			block.timestamp >= dataInfo.lastWithdrawTime + 30 days,
+			block.timestamp >= provider.lastWithdrawTime + 30 days,
 			"Not Enough time has passed"
 		);
-		dataInfo.totalEthEarned = 0;
+		provider.totalEthEarned = 0;
 		(bool success, ) = payable(msg.sender).call{ value: amount }("");
 		require(success);
 	}
