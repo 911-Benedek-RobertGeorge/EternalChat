@@ -13,6 +13,6 @@ const inMemory = process.env.IN_MEMORY
 
 export class GlobalService {
   static globalVar: Record<`0x${string}`, MessageRecord[]> = {};
-  static blockstore = inMemory ? new MemoryBlockstore() : new FsBlockstore('../data/blockstore');
-  static datastore = inMemory ? new MemoryDatastore() :new FsDatastore('../data/datastore')
+  static blockstore = inMemory ? new MemoryBlockstore() : new FsBlockstore('./data/blockstore');
+  static datastore = inMemory ? new MemoryDatastore() :new FsDatastore('./data/datastore')
 }

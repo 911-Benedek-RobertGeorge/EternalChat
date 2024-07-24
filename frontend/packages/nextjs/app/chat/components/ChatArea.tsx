@@ -93,7 +93,7 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
                         <div className="card-body">
                             <h2 className="card-title">Conversations</h2>
                         </div>
-                        <ConversationList setConversations={setConversations} setSelectedConversation={setSelectedConversation} avatars={avatars} conversations={conversations} onSelectConversation={handleSelectConversation} selectedConversation={selectedConversation || ''} />
+                        <ConversationList setConversations={setConversations} setSelectedConversation={setSelectedConversation} conversations={conversations} onSelectConversation={handleSelectConversation} selectedConversation={selectedConversation || ''} />
                         <div className="h-10"></div>
                         {selectedConversation && messages?.length != 0 &&
                             <div>
