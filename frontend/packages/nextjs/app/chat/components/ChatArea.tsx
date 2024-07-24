@@ -11,7 +11,7 @@ import { NoConversationSelected } from "./Conversations/NoConversationSelected"
 import { UploadToIpfsButton } from "./upload-to-ipfs-button";
 import { DeleteBackend } from "./deleteBackendButton";
 import { fetchMessagesIPFS, mergeIpfs } from "../services/fetchIPFS";
-import {abi as ethernalAbi} from '../../../abi/EthernalChat.json'
+import {abi as ethernalAbi} from '../../../abi/EthernalChatIncentivized.json'
 import {CID} from "multiformats"
 import * as jsonCodec from 'multiformats/codecs/json'
 import { fromHex, hexToBytes, toHex } from "viem";
@@ -73,7 +73,9 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
                 }           
                 
             }
-            )
+            ).catch(e  => {if(e.cause.reason != "No CID found for this address"){
+                throw new Error(e.message);
+            }})
         }
 
 

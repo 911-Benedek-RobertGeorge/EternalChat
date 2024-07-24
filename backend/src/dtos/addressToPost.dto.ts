@@ -7,4 +7,6 @@ export class AddressToPost {
     otherAddress: string;
     @ApiProperty({ type: String, required: true, default: null })
     previousCid: string;
+    @ApiProperty({ type: Number, required: true, default: 10 })
+    chunkSize: number;
 }

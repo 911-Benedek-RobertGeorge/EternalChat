@@ -2,7 +2,7 @@ import { createHelia } from 'helia'
 import { json } from '@helia/json'
 import { CID } from 'multiformats/cid'
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import {abi as ethernalAbi} from '../../../abi/EthernalChat.json'
+import {abi as ethernalAbi} from '../../../abi/EthernalChatIncentivized.json'
 import { parseEther, toHex } from "viem";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { sendToIpfs } from '../services/postIPFS';
@@ -22,9 +22,12 @@ export function UploadToIpfsButton({selectedConversation, cid, setCid, contractA
     blockExplorer = getBlockExplorerTxLink(network.id, tx);
   }
 
+  const chunkSize = 10n;
 
-  const handleSendToContract= async (newCid: string) => {
+
+  const handleSendToContract= async (newCid: string, merkleRoot: string, numOfChunks: bigint, chunkSize: bigint) => {
     if(newCid != cid){
+    setCid(newCid); 
     const cidObj = CID.parse(newCid);    
     const cidBytes = cidObj.multihash.bytes.slice(2);
 
@@ -37,7 +40,7 @@ export function UploadToIpfsButton({selectedConversation, cid, setCid, contractA
         abi: ethernalAbi,
         address: contractAddress as `0x${string}`,
         functionName: 'setCID',
-        args: [hexString],
+        args: [hexString,numOfChunks,chunkSize,merkleRoot],
         })
         .catch((e: Error) => {
             console.log("ERROR occured : ", e.message);
@@ -57,7 +60,8 @@ export function UploadToIpfsButton({selectedConversation, cid, setCid, contractA
 return (    
     <div> 
     
-    <button className='btn glass ' onClick={() => sendToIpfs(accountAddress, selectedConversation, cid).then((newCid) => {setCid(newCid); handleSendToContract(newCid);})
+    <button className='btn glass ' onClick={() => sendToIpfs(accountAddress, selectedConversation, cid, Number(chunkSize)).then(({cid: newCid, merkleRoot, numOfChunks}) => {if(newCid){ console.log(newCid);
+    ; handleSendToContract(newCid, merkleRoot, BigInt(numOfChunks), chunkSize);}})
     }> Save selected conversation to IPFS</button>
     {cid && <div> Uploaded to IPFS with CID: {cid.toString()}</div>}
     {tx && <label className="label flex flex-col">

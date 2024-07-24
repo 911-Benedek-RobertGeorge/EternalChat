@@ -18,7 +18,7 @@ export class IpfsController {
 
   @Post('pin')
   async postToIpfs(@Body() body: AddressToPost) {
-    return { result: await this.ipfsService.postToIPFS(body.ownerAddress,body.otherAddress, body.previousCid)};
+    return { result: await this.ipfsService.postToIPFS(body.ownerAddress,body.otherAddress, body.previousCid, body.chunkSize)};
   }
 
   @Get('get-from-cid')
