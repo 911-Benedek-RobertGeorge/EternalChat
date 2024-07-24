@@ -11,7 +11,7 @@ import { NoConversationSelected } from "./Conversations/NoConversationSelected"
 import { UploadToIpfsButton } from "./upload-to-ipfs-button";
 import { DeleteBackend } from "./deleteBackendButton";
 import { fetchMessagesIPFS, mergeIpfs } from "../services/fetchIPFS";
-import {abi as ethernalAbi} from '../../../abi/EthernalChatIncentivized.json'
+import {abi as ethernalAbi} from '../../../abi/EthernalChat.json'
 import {CID} from "multiformats"
 import * as jsonCodec from 'multiformats/codecs/json'
 import { fromHex, hexToBytes, toHex } from "viem";
@@ -28,11 +28,10 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
 
     const publicClient = usePublicClient();
 
-    const chunkSize = 10;
 
     useEffect(() => {       
         if (account.address) {
-            Promise.all([fetchMessagesBackend(account.address),fetchMessagesIPFS(cid,chunkSize)])
+            Promise.all([fetchMessagesBackend(account.address),fetchMessagesIPFS(cid)])
             .then(([backendMess,ipfsMess]) => mergeIpfs(getConversations((backendMess)),getConversations(ipfsMess,true)))
             .then((conversation) => {
                 setConversations(conversation);
@@ -60,23 +59,16 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
                     args:[account.address]
                 }
             ).then((res) => {
-                console.log(res);
-                
                 const bytes = fromHex(res as `0x${string}`,{
                     size: 32,
                     to: 'bytes'
                   });
-               
                   
                   if(!bytes.every(byte => byte === 0)){
                     const prefix  = Buffer.from([18, 32]);
                     const resultBuffer = Buffer.concat([prefix, Buffer.from(bytes)]);
                     const _newCid = CID.decode(resultBuffer);
-                    console.log(_newCid.toString());
-                    
-                    const newCid = CID.createV1(jsonCodec.code,_newCid.multihash);    
-                    console.log(newCid.toString());
-                                  
+                    const newCid = CID.createV1(jsonCodec.code,_newCid.multihash);                  
                     setCid(newCid.toString());       
                 }           
                 
@@ -101,11 +93,11 @@ const ChatArea = ({ account }: { account: UseAccountReturnType<Config> }) => {
                         <div className="card-body">
                             <h2 className="card-title">Conversations</h2>
                         </div>
-                        <ConversationList setConversations={setConversations} setSelectedConversation={setSelectedConversation} conversations={conversations} onSelectConversation={handleSelectConversation} selectedConversation={selectedConversation || ''} />
+                        <ConversationList setConversations={setConversations} setSelectedConversation={setSelectedConversation} avatars={avatars} conversations={conversations} onSelectConversation={handleSelectConversation} selectedConversation={selectedConversation || ''} />
                         <div className="h-10"></div>
                         {selectedConversation && messages?.length != 0 &&
                             <div>
-                                <UploadToIpfsButton cid={cid} chunkSize={chunkSize} setCid={setCid} selectedConversation={selectedConversation} contractAddress={contractAddress}/>
+                                <UploadToIpfsButton cid={cid} setCid={setCid} selectedConversation={selectedConversation} contractAddress={contractAddress}/>
                                 <div className="h-4"></div>
                                 <DeleteBackend selectedConversation={selectedConversation} reFetchData={reFetchData}/>
                             </div>

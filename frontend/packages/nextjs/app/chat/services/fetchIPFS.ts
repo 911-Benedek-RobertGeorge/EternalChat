@@ -2,13 +2,13 @@ import { Conversation, Conversations, MessageRecord } from "../types/types";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export const fetchMessagesIPFS = async (cid: string | null, chunkSize:number): Promise<MessageRecord[]> => {
+export const fetchMessagesIPFS = async (cid: string | null): Promise<MessageRecord[]> => {
 
     if (cid == null) {
         return [];
     }
 
-    const response = await fetch(`${BACKEND_URL}/get-from-cid?cid=${cid}&chunkSize=${chunkSize}`, {
+    const response = await fetch(`${BACKEND_URL}/get-from-cid?cid=${cid}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
