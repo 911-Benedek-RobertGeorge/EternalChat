@@ -12,11 +12,11 @@ contract EthernalChatIncentivized is Ownable {
 		bytes32 cid;
 		// Below is needed for the simple proof of storage done here
 		bytes32 merkleRoot; // Root of the merkle tree
-		uint64 numberOfChunks;
 		uint64 sizeOfChunks; // Help checking the size of the data during proof verification
+		uint64 numberOfChunks;
 		//  Address of the storage provider we want to incentivize
 		address storageProvider; // This could be a list but for now only one
-		uint256 timeRewardRedeemed;
+		uint256 lastTimeRewardRedeemed;
 		uint256 totalEthEarned; // total eth earned per stored messages for each account
 		uint256 allocatedEth;
 		uint256 lastWithdrawTime;
@@ -42,62 +42,41 @@ contract EthernalChatIncentivized is Ownable {
 
 	/// @notice Sets the CID (Content Identifier) for the sender of the transaction.
 	/// @param cid The CID to set for the user.
-	/// @param numberOfChunks The number of chunks we divided the data for the storage proof. (Total number of chunks)
 	/// @param sizeOfChunks The size of each chunks. (Padding need to be applied for the last chunk if necessary)
+	/// @param numberOfChunks The number of chunks we divided the data for the storage proof. (Total number of chunks)
 	/// @param newMerkleRoot The calculated merkle root corresponding of the hash of each chunks, then the hash of each chunk concatenated 2-by-2...
-	/// @param merkleRootOfAppendedData This is to verify we only append new data: for the first time this would be equals to newMerkleRoot
-	/// @dev Make sure the data is always greater than the previous one as we don't allow deletion of data.
-	/// @dev To prevent data modification (only adding new data to the previous one) we have to make sure the hash of the concatenated merkleRoots (old one and appended data) match the one provided
-	/// @dev Make sure the cid != 0x0... to prevent "deleting" all the data and start pushing new data instead
 	function setCID(
 		bytes32 cid,
-		uint64 numberOfChunks,
 		uint64 sizeOfChunks,
-		bytes32 newMerkleRoot,
-		bytes32 merkleRootOfAppendedData
+		uint64 numberOfChunks,
+		bytes32 newMerkleRoot
 	) public {
 		require(cid != bytes32(0), "Invalid CID");
-        DataInfo storage dataInfo = mapDataInfo[msg.sender];
-		if (dataInfo.cid == bytes32(0)) {
-			require(
-				newMerkleRoot == merkleRootOfAppendedData,
-				"MerkleRoot and MerkleRootOfAppendedData should be the same initially"
-			);
-            // We define the size of chunks only the first time
-            dataInfo.sizeOfChunks = sizeOfChunks;
-		} else {
-			require(
-				(newMerkleRoot ==
-					keccak256(
-						abi.encodePacked(
-							dataInfo.merkleRoot,
-							merkleRootOfAppendedData
-						)
-					)),
-				"Data not appended correctly"
-			);
-            require(
-				dataInfo.sizeOfChunks == sizeOfChunks,
-				"Size of Chunks doesn't match the previous one"
-			);
-            require(
-				dataInfo.numberOfChunks < numberOfChunks,
-				"The new numberOfChunks must be higher than the previous one"
-			);
-		}
-
 		require(newMerkleRoot != bytes32(0), "Invalid Merkle Root");
+        DataInfo storage dataInfo = mapDataInfo[msg.sender];
 
 		dataInfo.cid = cid;
+		dataInfo.sizeOfChunks = sizeOfChunks;
 		dataInfo.numberOfChunks = numberOfChunks;
 		dataInfo.merkleRoot = newMerkleRoot;
-		dataInfo.timeRewardRedeemed = block.timestamp;
-		dataInfo.totalEthEarned += ETH_PER_CID;
+
+		if(dataInfo.lastWithdrawTime == 0){
+			dataInfo.lastWithdrawTime = block.timestamp;
+		}
+
 		emit CIDUpdated(msg.sender, cid);
 	}
 
 
     // Set Storage Provider (or update it)
+
+	// /// @notice
+	// /// @dev 
+	// function setStorageProvider() public payable {
+	// 	DataInfo storage dataInfo = mapDataInfo[msg.sender];
+	// 	require(dataInfo.cid != bytes32(0), "DataInfo not found");
+	// 	dataInfo.allocatedEth += msg.value;
+	// }
 
 	/// @notice Add funds to an existing DataInfo by sending tokens and updating
 	/// @dev Make sure the DataInfo is non zero (has been already created)
@@ -131,7 +110,7 @@ contract EthernalChatIncentivized is Ownable {
 	function getStorageReward(address addr) public {
 		DataInfo storage dataInfo = mapDataInfo[addr];
 		require(
-			block.timestamp >= dataInfo.timeRewardRedeemed + 1 days,
+			block.timestamp >= dataInfo.lastTimeRewardRedeemed + 1 days,
 			"Not Enough time has passed"
 		);
 		require(
@@ -139,7 +118,8 @@ contract EthernalChatIncentivized is Ownable {
 			"No DataInfo store by this address"
 		);
 		//require the proofOfChallenge
-		mapDataInfo[addr].totalEthEarned += ETH_PER_CID / 30;
+		dataInfo.lastTimeRewardRedeemed = block.timestamp;
+		dataInfo.totalEthEarned += ETH_PER_CID / 30;
 	}
 
 	/// @notice Take out all the rewards in Eth based on the amount of tokens the address holds

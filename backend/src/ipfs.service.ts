@@ -2,21 +2,6 @@ import { Injectable } from '@nestjs/common';
 import type { HeliaLibp2p } from 'helia';
 import { GlobalService, MessageRecord } from './global.service.js';
 
-// Remove the last ']' to be able to append properly data
-// In order to be coherent, we also remove the first '['
-function preprocessData(jsonString) {
-  if (jsonString.startsWith('[') && jsonString.endsWith(']')) {
-      return jsonString.slice(1, -1);
-  } else {
-      throw new Error('Invalid JSON array format');
-  }
-}
-
-// Add the last ']'
-// In order to match the coherence of the preprocessData we also add the first '['
-function postprocessData(string) {
-  return '[' + string + ']';
-}
 
 @Injectable()
 export class IpfsService {
@@ -97,7 +82,7 @@ export class IpfsService {
 
     if(previousCid && previousCid != null){
       const { CID } = await import('multiformats/cid')
-      const obj : MessageRecord[] = JSON.parse(postprocessData(await j.get(CID.parse(previousCid))));
+      const obj : MessageRecord[] = JSON.parse(await j.get(CID.parse(previousCid)));
       newData = obj;
     
       for (const elem of data){
@@ -108,7 +93,7 @@ export class IpfsService {
       }
     }
 
-    const cid = await j.add(preprocessData(JSON.stringify(newData)))
+    const cid = await j.add(JSON.stringify(newData));
     console.log(cid);
 
     const result = await this.helia.pins.add(cid, { depth: 100 });
@@ -128,9 +113,8 @@ export class IpfsService {
 
     const j = json(this.helia)
     const obj = await j.get(CID.parse(cid))
-    const newobjJson = postprocessData(obj)
     
-    return newobjJson
+    return obj
   }
 
 }
