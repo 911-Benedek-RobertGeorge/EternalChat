@@ -209,4 +209,19 @@ contract EthernalChatIncentivized is Ownable {
 		(bool success, ) = payable(msg.sender).call{ value: amount }("");
 		require(success);
 	}
+
+	function getStorageProvider(address addr) public view returns (address) {
+		return mapDataInfo[addr].storageProvider;
+	}
+
+	function getAllocatedEthToStorageProvider(
+		address addr
+	) public view returns (uint256) {
+		return mapDataInfo[addr].allocatedEth;
+	}
+    function getTotalEthToStorageProvider(
+		address addr
+	) public view returns (uint256) {
+		return mapProviderInfo[addr].totalEthEarned;
+	}
 }
