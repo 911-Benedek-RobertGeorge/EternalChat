@@ -18,4 +18,5 @@ export interface MessageRecord {
   message: string;
   timestamp: number;
   direction: string;
+  
 }
