@@ -20,10 +20,9 @@ contract EthernalChatIncentivized is Ownable {
 		uint256 lastTimeRewardRedeemed; // Represent the last time the storageProvider redeemed a reward with a challenge
 		uint256 allocatedEth;
 		uint256 ethSpent; // total eth earned by storage providers (spent by the user)
-
 	}
 
-	struct ProviderInfo{
+	struct ProviderInfo {
 		uint256 totalEthEarned;
 		uint256 lastWithdrawTime;
 	}
@@ -32,7 +31,7 @@ contract EthernalChatIncentivized is Ownable {
 	uint256 public constant PRICE_PER_DAY = 0.0001 ether;
 	/// @notice Mapping of CID/DataInfo of the stored messages for each account
 	mapping(address => DataInfo) private mapDataInfo;
-	
+
 	/// @notice Mapping of the storage providers rewards info
 	mapping(address => ProviderInfo) private mapProviderInfo;
 
@@ -63,7 +62,7 @@ contract EthernalChatIncentivized is Ownable {
 	) public {
 		require(cid != bytes32(0), "Invalid CID");
 		require(newMerkleRoot != bytes32(0), "Invalid Merkle Root");
-        DataInfo storage dataInfo = mapDataInfo[msg.sender];
+		DataInfo storage dataInfo = mapDataInfo[msg.sender];
 
 		dataInfo.cid = cid;
 		dataInfo.sizeOfChunks = sizeOfChunks;
@@ -73,16 +72,21 @@ contract EthernalChatIncentivized is Ownable {
 		emit CIDUpdated(msg.sender, cid);
 	}
 
+	// Set Storage Provider (or update it)
 
-    // Set Storage Provider (or update it)
-
-	// /// @notice
-	// /// @dev 
-	// function setStorageProvider() public payable {
-	// 	DataInfo storage dataInfo = mapDataInfo[msg.sender];
-	// 	require(dataInfo.cid != bytes32(0), "DataInfo not found");
-	// 	dataInfo.allocatedEth += msg.value;
-	// }
+	// /// @notice Adds or updates a user's storage provider
+	/// @param addr Address of the account you are trying to set as a storage provider.
+	// /// @dev
+	function setStorageProvider(address addr) public {
+		ProviderInfo storage providerInfo = mapProviderInfo[addr];
+		mapDataInfo[msg.sender].storageProvider = addr;
+		if (providerInfo.lastWithdrawTime == 0) {
+			providerInfo.lastWithdrawTime = block.timestamp;
+			providerInfo.totalEthEarned = 0 ether;
+		}
+		providerInfo.lastWithdrawTime = providerInfo.lastWithdrawTime;
+		providerInfo.totalEthEarned = providerInfo.totalEthEarned;
+	}
 
 	/// @notice Add funds to an existing DataInfo by sending tokens and updating
 	/// @dev Make sure the DataInfo is non zero (has been already created)
@@ -110,7 +114,7 @@ contract EthernalChatIncentivized is Ownable {
 	function getChallenge(
 		address addr
 	) public OnlyStorageProvider(addr) returns (uint64 index) {
-		 DataInfo storage dataInfo = mapDataInfo[addr];
+		DataInfo storage dataInfo = mapDataInfo[addr];
 		require(
 			dataInfo.cid != bytes32(0),
 			"No DataInfo found for this address"
@@ -123,14 +127,18 @@ contract EthernalChatIncentivized is Ownable {
 		dataInfo.lastChallengeIndex = index;
 	}
 
-
-	function verifyStorageProof(uint index, bytes32 merkleRoot, bytes memory chunkData, bytes32[] memory hashes) internal pure returns(bool){ 
-		bytes32 chunkHash =  keccak256(chunkData);
-		for(uint i = 0 ; i <  hashes.length ; i++ ){
-			if(index % 2 == 0){
-				chunkHash = keccak256(abi.encodePacked(chunkHash,hashes[i]));
+	function verifyStorageProof(
+		uint index,
+		bytes32 merkleRoot,
+		bytes memory chunkData,
+		bytes32[] memory hashes
+	) internal pure returns (bool) {
+		bytes32 chunkHash = keccak256(chunkData);
+		for (uint i = 0; i < hashes.length; i++) {
+			if (index % 2 == 0) {
+				chunkHash = keccak256(abi.encodePacked(chunkHash, hashes[i]));
 			} else {
-				chunkHash = keccak256(abi.encodePacked(hashes[i],chunkHash));
+				chunkHash = keccak256(abi.encodePacked(hashes[i], chunkHash));
 			}
 			index = index / 2;
 		}
@@ -142,9 +150,15 @@ contract EthernalChatIncentivized is Ownable {
 	/// @param addr Address of the account you are trying to get the reward from.
 	/// @param hashes Array of hashes allowing the proof : it should be ordered by the level in the merkle tree from the leafs.
 	///  it should allow the proof to pass.
-	function getStorageReward(address addr, bytes memory chunkData, bytes32[] memory hashes) public OnlyStorageProvider(addr) {
+	function getStorageReward(
+		address addr,
+		bytes memory chunkData,
+		bytes32[] memory hashes
+	) public OnlyStorageProvider(addr) {
 		DataInfo storage dataInfo = mapDataInfo[addr];
-		ProviderInfo storage providerInfo = mapProviderInfo[dataInfo.storageProvider];
+		ProviderInfo storage providerInfo = mapProviderInfo[
+			dataInfo.storageProvider
+		];
 		require(
 			mapDataInfo[addr].cid != bytes32(0),
 			"No DataInfo store by this address"
@@ -160,12 +174,18 @@ contract EthernalChatIncentivized is Ownable {
 		);
 
 		require(
-			2**(hashes.length) == dataInfo.numberOfChunks + dataInfo.numberOfChunks % 2,
+			2 ** (hashes.length) ==
+				dataInfo.numberOfChunks + (dataInfo.numberOfChunks % 2),
 			"The number of hashes necessary for the proof is not matching ceil[log2(numberOfChunks)]"
 		);
 
 		require(
-			verifyStorageProof(dataInfo.lastChallengeIndex,dataInfo.merkleRoot,chunkData,hashes),
+			verifyStorageProof(
+				dataInfo.lastChallengeIndex,
+				dataInfo.merkleRoot,
+				chunkData,
+				hashes
+			),
 			"The proof of Storage is incorrect"
 		);
 
@@ -174,7 +194,6 @@ contract EthernalChatIncentivized is Ownable {
 		dataInfo.ethSpent += PRICE_PER_DAY;
 
 		providerInfo.totalEthEarned += PRICE_PER_DAY;
-		
 	}
 
 	/// @notice Take out all the rewards in Eth based on the amount of tokens the address holds
@@ -190,5 +209,4 @@ contract EthernalChatIncentivized is Ownable {
 		(bool success, ) = payable(msg.sender).call{ value: amount }("");
 		require(success);
 	}
-    
 }
