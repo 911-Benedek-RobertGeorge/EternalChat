@@ -1,21 +1,51 @@
 import { Injectable } from '@nestjs/common';
 import type { HeliaLibp2p } from 'helia';
 import { GlobalService, MessageRecord } from './global.service.js';
+import { keccak256 } from 'viem';
 
-// Remove the last ']' to be able to append properly data
-// In order to be coherent, we also remove the first '['
-function preprocessData(jsonString) {
-  if (jsonString.startsWith('[') && jsonString.endsWith(']')) {
-      return jsonString.slice(1, -1);
-  } else {
-      throw new Error('Invalid JSON array format');
+
+function calculateMerkleRoot(hashes: string[]): string {
+  if (hashes.length === 1) {
+    return hashes[0];
   }
+
+  const newHashes: string[] = [];
+  for (let i = 0; i < hashes.length; i += 2) {
+    if (i + 1 < hashes.length) {
+      // Concatenate the hashes and hash them again
+      const combinedHash = keccak256(Buffer.concat([
+        Buffer.from(hashes[i].slice(2), 'hex'),
+        Buffer.from(hashes[i + 1].slice(2), 'hex')
+      ]));
+      newHashes.push(combinedHash);
+    } else {
+      // If there is an odd number of elements, push the last one
+      newHashes.push(hashes[i]);
+    }
+  }
+
+  return calculateMerkleRoot(newHashes);
 }
 
-// Add the last ']'
-// In order to match the coherence of the preprocessData we also add the first '['
-function postprocessData(string) {
-  return '[' + string + ']';
+function chunkString(str: string, chunkSize: number): string[] {
+  const chunks: string[] = [];
+  for (let i = 0; i < str.length; i += chunkSize) {
+    chunks.push(str.slice(i, i + chunkSize));
+  }
+  return chunks;
+}
+
+
+function hashChunk(chunk: string): string {
+  return keccak256(Buffer.from(chunk));
+}
+
+
+function getMerkleRootFromJson(json: string, chunkSize: number): {merkleRoot:string,numOfChunks:number}  {
+  const chunks = chunkString(json, chunkSize);
+  const hashes = chunks.map(hashChunk);
+  const numOfChunks = chunks.length;
+  return {merkleRoot: calculateMerkleRoot(hashes), numOfChunks};
 }
 
 @Injectable()
@@ -80,7 +110,7 @@ export class IpfsService {
     }
   }
 
-  async postToIPFS(ownerAddress: string, otherAddress: string, previousCid: string) {
+  async postToIPFS(ownerAddress: string, otherAddress: string, previousCid: string, chunkSize: number) {
     const { json } = await import('@helia/json');
     if (this.helia == null) {
       await this.createHeliaInstance();
@@ -88,16 +118,16 @@ export class IpfsService {
 
     const j = json(this.helia)
 
-    const data = GlobalService.globalVar[ownerAddress].filter((message: MessageRecord) => message.otherAddress == otherAddress);
+    const data = GlobalService.globalVar[ownerAddress]?.filter((message: MessageRecord) => message.otherAddress == otherAddress);
     if (!data) {
-      return null
+      return {cid:null, merkleRoot:null, numberOfChunks: null}
     }
 
     let newData : MessageRecord[] = data.slice();
 
     if(previousCid && previousCid != null){
       const { CID } = await import('multiformats/cid')
-      const obj : MessageRecord[] = JSON.parse(postprocessData(await j.get(CID.parse(previousCid))));
+      const obj : MessageRecord[] = JSON.parse(await j.get(CID.parse(previousCid)));
       newData = obj;
     
       for (const elem of data){
@@ -107,14 +137,16 @@ export class IpfsService {
         }
       }
     }
-
-    const cid = await j.add(preprocessData(JSON.stringify(newData)))
+    const newDataJson = JSON.stringify(newData);
+    const cid = await j.add(newDataJson);
     console.log(cid);
+
+    const {merkleRoot, numOfChunks } = getMerkleRootFromJson(newDataJson,chunkSize);
 
     const result = await this.helia.pins.add(cid, { depth: 100 });
     console.log("content pinned with CID", cid.toString())
 
-    return cid.toString();
+    return {cid: cid.toString(), merkleRoot, numOfChunks};
 
 
   }
@@ -128,9 +160,8 @@ export class IpfsService {
 
     const j = json(this.helia)
     const obj = await j.get(CID.parse(cid))
-    const newobjJson = postprocessData(obj)
     
-    return newobjJson
+    return obj
   }
 
 }
