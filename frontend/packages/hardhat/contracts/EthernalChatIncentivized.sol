@@ -16,6 +16,7 @@ contract EthernalChatIncentivized is Ownable {
 		uint64 numberOfChunks;
 		//  Address of the storage provider we want to incentivize
 		address storageProvider; // This could be a list but for now only one
+		bool challengeAsked;
 		uint64 lastChallengeIndex;
 		uint256 lastTimeRewardRedeemed; // Represent the last time the storageProvider redeemed a reward with a challenge
 		uint256 allocatedEth;
@@ -120,11 +121,16 @@ contract EthernalChatIncentivized is Ownable {
 			"No DataInfo found for this address"
 		);
 		require(
-			dataInfo.lastChallengeIndex == 0,
+			block.timestamp >= dataInfo.lastTimeRewardRedeemed + 1 days,
+			"Not Enough time has passed"
+		);
+		require(
+			dataInfo.challengeAsked == false,
 			"You already asked for a challenge"
 		);
 		index = uint64(block.prevrandao) % dataInfo.numberOfChunks;
 		dataInfo.lastChallengeIndex = index;
+		dataInfo.challengeAsked = true;
 	}
 
 	function verifyStorageProof(
@@ -159,6 +165,7 @@ contract EthernalChatIncentivized is Ownable {
 		ProviderInfo storage providerInfo = mapProviderInfo[
 			dataInfo.storageProvider
 		];
+		require(dataInfo.challengeAsked, "No challenge was asked");
 		require(
 			mapDataInfo[addr].cid != bytes32(0),
 			"No DataInfo store by this address"
@@ -192,7 +199,7 @@ contract EthernalChatIncentivized is Ownable {
 		dataInfo.lastTimeRewardRedeemed = block.timestamp;
 		dataInfo.lastChallengeIndex = 0;
 		dataInfo.ethSpent += PRICE_PER_DAY;
-
+		dataInfo.challengeAsked = false;
 		providerInfo.totalEthEarned += PRICE_PER_DAY;
 	}
 

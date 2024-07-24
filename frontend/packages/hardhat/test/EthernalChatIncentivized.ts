@@ -88,7 +88,38 @@ function getMerkleRootFromJson(json: string, chunkSize: number): string {
   return calculateMerkleRoot(hashes);
 }
 
-function chunkData(data: string, chunkSize: number, padChar = "~") {
+function loghashes(left : string , right : string,combinedHash?: string){
+  console.log("left hash",left,"left right",right)
+}
+// Function to generate proof hashes for a given index
+function getProofHashesFromJson(json: string, chunkSize: number, index: number): {proofHashes: string[],chunkData:string} {
+  const chunks = chunkString(json, chunkSize);
+  const hashes = chunks.map(hashChunk);
+  let proofHashes: string[] = [];
+  const N = hashes.length;
+  const numProofHashes = Math.ceil(Math.log2(N));
+  let currentLayer = hashes;
+  let idx = index;
+  for (let i = 0; i < numProofHashes; i++) {
+      const nextLayer: string[] = [];
+      for (let j = 0; j < currentLayer.length; j += 2) {
+          const left = currentLayer[j];
+          const right = currentLayer[j + 1] || left; // Handle odd number of elements
+          loghashes(left,right)
+          const combinedHash = keccak256('0x'+left.slice(2) + right.slice(2));
+          nextLayer.push(combinedHash);
+
+          if (j === idx || j + 1 === idx) {
+              proofHashes.push(j === idx ? right : left);
+              idx = Math.floor(j / 2);
+          }
+      }
+      currentLayer = nextLayer;
+  }
+
+  return {proofHashes, chunkData: chunks[index]};
+}
+function chunkData(data:string, chunkSize: number, padChar = '~') {
   let chunks = [];
   for (let i = 0; i < data.length; i += chunkSize) {
     let chunk = data.slice(i, i + chunkSize);
@@ -140,9 +171,9 @@ describe("EthernalChatIncentivized", function () {
 
   describe("SetCID", function () {
     it("should properly add a CID for the first time", async function () {
-      const { ethernalChat, acc1 } = await loadFixture(deployContract);
-      const ethernalChatAcc1 = ethernalChat.connect(acc1);
-      const data = [{ test: 1 }];
+      const {ethernalChat, acc1, acc2} = await loadFixture(deployContract);
+      const ethernalChatAcc1 = ethernalChat.connect(acc1)
+      const data = [{"test":1}];
       const numChunks = 2n;
       const { cidBytes, merkleRoot, chunkSize, cid } = await getCidAndData(data, numChunks);
 
@@ -201,6 +232,41 @@ describe("EthernalChatIncentivized", function () {
       await ethernalChatAcc1.connect(acc1).addFundsForStorage({ value: ethers.parseEther("1") });
       const ethAllocated = await ethernalChatAcc1.getAllocatedEthToStorageProvider(acc1.address);
       expect(ethAllocated).to.equal(ethers.parseEther("1"));
+    });
+  });
+
+
+  describe("Challenge and Proof", function () {
+    it("shouldn't allow for getting challenges two times", async function () {
+      const {ethernalChat, acc1, acc2} = await loadFixture(deployContract);
+      const ethernalChatAcc1 = ethernalChat.connect(acc1)
+      const ethernalChatAcc2 = ethernalChat.connect(acc2)
+      const data = [{"test":1},{"test":2},{"test":3},{"test":4},{"test":"It doesn't make sense it is just data"}];
+      const numChunks = 10n;
+      const {cidBytes,merkleRoot, chunkSize, cid} = await getCidAndData(data,numChunks)
+
+      await ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot);
+      await ethernalChatAcc1.setStorageProvider(acc2.address);
+
+      await ethernalChatAcc2.getChallenge(acc1.address);
+      await expect(ethernalChatAcc2.getChallenge(acc1.address)).to.be.rejectedWith("You already asked for a challenge");
+    });
+
+    it("should validate a valid proof", async function () {
+      const {ethernalChat, acc1, acc2} = await loadFixture(deployContract);
+      const ethernalChatAcc1 = ethernalChat.connect(acc1)
+      const ethernalChatAcc2 = ethernalChat.connect(acc2)
+      const data = [{"test":1},{"test":2},{"test":3},{"test":4},{"test":"It doesn't make sense it is just data"}];
+      const dataJson = JSON.stringify(data);
+      const numChunks = 10n;
+      const {cidBytes,merkleRoot, chunkSize, cid} = await getCidAndData(data,numChunks)
+
+      await ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot);
+      await ethernalChatAcc1.setStorageProvider(acc2.address);
+
+      const tx = await ethernalChatAcc2.getChallenge(acc1.address);
+      const index = Number(BigInt(tx.data));
+      const {proofHashes,chunkData} = getProofHashesFromJson(dataJson,Number(chunkSize),index);
     });
   });
 });

@@ -37,6 +37,11 @@
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "chai": "^5.1.1",
+    "ethereum-waffle": "^4.0.10",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.22.6",
     "lint-staged": "^13.0.3"
   },
   "engines": {
