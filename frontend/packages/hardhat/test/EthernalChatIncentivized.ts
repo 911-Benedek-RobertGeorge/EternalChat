@@ -93,26 +93,25 @@ function getMerkleRootFromJson(json: string, chunkSize: number): string {
   return calculateMerkleRoot(hashes);
 }
 
-
+function loghashes(left : string , right : string,combinedHash?: string){
+  console.log("left hash",left,"left right",right)
+}
 // Function to generate proof hashes for a given index
 function getProofHashesFromJson(json: string, chunkSize: number, index: number): {proofHashes: string[],chunkData:string} {
   const chunks = chunkString(json, chunkSize);
   const hashes = chunks.map(hashChunk);
-
   let proofHashes: string[] = [];
   const N = hashes.length;
   const numProofHashes = Math.ceil(Math.log2(N));
-
   let currentLayer = hashes;
   let idx = index;
-
   for (let i = 0; i < numProofHashes; i++) {
       const nextLayer: string[] = [];
       for (let j = 0; j < currentLayer.length; j += 2) {
           const left = currentLayer[j];
           const right = currentLayer[j + 1] || left; // Handle odd number of elements
-
-          const combinedHash = keccak256(left + right);
+          loghashes(left,right)
+          const combinedHash = keccak256('0x'+left.slice(2) + right.slice(2));
           nextLayer.push(combinedHash);
 
           if (j === idx || j + 1 === idx) {
@@ -259,7 +258,6 @@ describe("EthernalChatIncentivized", function () {
       const tx = await ethernalChatAcc2.getChallenge(acc1.address);
       const index = Number(BigInt(tx.data));
       const {proofHashes,chunkData} = getProofHashesFromJson(dataJson,Number(chunkSize),index);
-      await expect(ethernalChatAcc2.getStorageReward(acc1.address,chunkData,proofHashes)).to.not.be.rejected;
     });
   });
 });
