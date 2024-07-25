@@ -24,6 +24,198 @@ async function deployContract() {
   };
 }
 
+
+describe("EthernalChatIncentivized", function () {
+  async function getCidAndData(data: any, numChunks?: bigint, chunkSize?: bigint) {
+    const dataJson = JSON.stringify(data);
+    const size = BigInt(new Blob([dataJson]).size);
+    if (!chunkSize && numChunks) {
+      chunkSize = size / numChunks;
+    } else if (chunkSize) {
+      numChunks = size / chunkSize;
+      if (size % chunkSize != 0n) {
+        numChunks += 1n;
+      }
+    } else {
+      throw Error("numChunks or ChunkSize should be specified");
+    }
+
+    const { numChunks: newNumChunks, merkleRoot } = generateProof(data, Number(chunkSize));
+
+    const cidHash = await Hash.of(dataJson);
+    const cid = CID.parse(cidHash);
+
+    const cidBytes = CidToBytes(cid);
+
+
+    return {
+      cidBytes,
+      cid,
+      merkleRoot: toHex(merkleRoot),
+      chunkSize,
+      numChunks: BigInt(newNumChunks.toString()),
+    };
+  }
+
+  describe("SetCID", function () {
+    it("should properly add a CID for the first time", async function () {
+      const {ethernalChat, acc1, acc2} = await loadFixture(deployContract);
+      const ethernalChatAcc1 = ethernalChat.connect(acc1)
+      const data = [{"test":1}];
+      const numChunksInit = 2n;
+      const { cidBytes, merkleRoot, chunkSize, cid, numChunks } = await getCidAndData(data, numChunksInit);
+
+      const response = await ethernalChatAcc1.setCID(cidBytes, numChunks, chunkSize, merkleRoot);
+      response.wait();
+      const storedCidString = await ethernalChatAcc1.getCID(acc1.address);
+      const storedCid = bytesToCid(storedCidString);
+      expect(cid.multihash.bytes).to.eqls(storedCid.multihash.bytes);
+    });
+
+    it("should add new CID when appending data", async function () {
+      const { ethernalChat, acc1 } = await loadFixture(deployContract);
+      const ethernalChatAcc1 = ethernalChat.connect(acc1);
+      const data = [{ test: 1 }];
+      const data2 = [{ test: 1 }, { test2: 2 }];
+      const numChunksInit = 2n;
+      const { cidBytes, merkleRoot, chunkSize, numChunks } = await getCidAndData(data, numChunksInit);
+      const { cidBytes: cidBytes2, merkleRoot: mr2, chunkSize: chunkSize2, numChunks: numChunks2 } = await getCidAndData(data2, numChunksInit);
+      await ethernalChatAcc1.setCID(cidBytes, numChunks, chunkSize, merkleRoot);
+      await ethernalChatAcc1.setCID(cidBytes2, numChunks2, chunkSize2, mr2);
+
+      const storedCidString = await ethernalChatAcc1.getCID(acc1.address);
+      expect(cidBytes2).to.eqls(storedCidString);
+    });
+
+    it("should add new CID when modifying data", async function () {
+      const { ethernalChat, acc1 } = await loadFixture(deployContract);
+      const ethernalChatAcc1 = ethernalChat.connect(acc1);
+      const data = [{ test: 1 }];
+      const data2 = [{ test1: 1 }];
+      const numChunksInit = 2n;
+      const { cidBytes, merkleRoot, chunkSize, numChunks } = await getCidAndData(data, numChunksInit);
+      const { cidBytes: cidBytes2, merkleRoot: mr2, chunkSize: chunkSize2, numChunks:numChunks2 } = await getCidAndData(data2, numChunksInit);
+      await ethernalChatAcc1.setCID(cidBytes, numChunks, chunkSize, merkleRoot);
+      await ethernalChatAcc1.setCID(cidBytes2, numChunks2, chunkSize2, mr2);
+
+      const storedCidString = await ethernalChatAcc1.getCID(acc1.address);
+      expect(cidBytes2).to.eqls(storedCidString);
+    });
+
+    it("Should set storage provider", async function () {
+      const { ethernalChat, acc1, acc2 } = await loadFixture(deployContract);
+      const ethernalChatAcc1 = ethernalChat.connect(acc1);
+      await ethernalChatAcc1.setStorageProvider(acc2.address);
+      const storageProvider = await ethernalChatAcc1.getStorageProvider(acc1.address);
+      expect(storageProvider).to.equal(acc2.address);
+    });
+
+    it("Should add funds for storage", async function () {
+      const { ethernalChat, acc1, acc2 } = await loadFixture(deployContract);
+      const ethernalChatAcc1 = ethernalChat.connect(acc1);
+      const data = [{ test: 1 }];
+      const numChunksInit = 2n;
+      const { cidBytes, merkleRoot, chunkSize, cid, numChunks } = await getCidAndData(data, numChunksInit);
+      await ethernalChatAcc1.connect(acc1).setCID(cidBytes, numChunks, chunkSize, merkleRoot);
+      await ethernalChatAcc1.connect(acc1).addFundsForStorage({ value: ethers.parseEther("1") });
+      const ethAllocated = await ethernalChatAcc1.getAllocatedEthToStorageProvider(acc1.address);
+      expect(ethAllocated).to.equal(ethers.parseEther("1"));
+    });
+  });
+
+
+  describe("Challenge and Proof", function () {
+    it("shouldn't allow for getting challenges two times", async function () {
+      const {ethernalChat, acc1, acc2} = await loadFixture(deployContract);
+      const ethernalChatAcc1 = ethernalChat.connect(acc1)
+      const ethernalChatAcc2 = ethernalChat.connect(acc2)
+      const data = [{"test":1},{"test":2},{"test":3},{"test":4},{"test":"It doesn't make sense it is just data"}];
+      const numChunksInit = 10n;
+      const {cidBytes,merkleRoot, chunkSize, cid, numChunks} = await getCidAndData(data,numChunksInit)
+
+      await ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot);
+      await ethernalChatAcc1.setStorageProvider(acc2.address);
+
+      await ethernalChatAcc2.getChallenge(acc1.address);
+      await expect(ethernalChatAcc2.getChallenge(acc1.address)).to.be.rejectedWith("You already asked for a challenge");
+    });
+
+    // it("get Challenge should give a valid challenge", async function () {
+    //   const {ethernalChat, acc1, acc2} = await loadFixture(deployContract);
+    //   const ethernalChatAcc1 = ethernalChat.connect(acc1)
+    //   const ethernalChatAcc2 = ethernalChat.connect(acc2)
+    //   const data = [{"test":1},{"test":2},{"test":3},{"test":4},{"test":"It doesn't make sense it is just data"}];
+    //   const dataJson = JSON.stringify(data);
+    //   const numChunks = 10n;
+    //   const {cidBytes,merkleRoot, chunkSize, cid} = await getCidAndData(data,numChunks)
+
+    //   await ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot);
+    //   const tx = await ethernalChatAcc1.setStorageProvider(acc2.address);
+    //   tx.wait()
+    //   const tx2 = await ethernalChatAcc1.setStorageProvider(acc2.address);
+    //   tx2.wait()
+    //   const tx3 = await ethernalChatAcc1.setStorageProvider(acc2.address);
+    //   tx3.wait()
+    //   const tx4 = await ethernalChatAcc1.setStorageProvider(acc2.address);
+    //   tx4.wait()
+
+
+
+    //   await ethernalChatAcc2.getChallenge(acc1.address);
+    //   const index = await ethernalChatAcc2.test(acc1.address);
+    //   console.log(index);
+      
+      // const tx2 = await ethernalChatAcc2.getChallenge(acc1.address).then((val) => console.log(val));
+
+      
+      // const index = Number(BigInt(tx.data));
+      // const {proofHashes,chunkData} = getProofHashesFromJson(dataJson,Number(chunkSize),index);
+      // const tx2 = await ethernalChatAcc2.getStorageReward(acc1.address,chunkData,proofHashes);
+    // });
+
+    it("should validate a valid proof", async function () {
+      const {ethernalChat, acc1, acc2} = await loadFixture(deployContract);
+      const ethernalChatAcc1 = ethernalChat.connect(acc1)
+      const ethernalChatAcc2 = ethernalChat.connect(acc2)
+      const data = [{"test":1},{"test":2},{"test":3},{"test":4},{"test":"It doesn't make sense it is just data"}];
+      const dataJson = JSON.stringify(data);
+      const numChunksInit = 10n;
+      const {cidBytes, merkleRoot, chunkSize, cid, numChunks} = await getCidAndData(data,numChunksInit)
+
+      await ethernalChatAcc1.setCID(cidBytes,chunkSize,numChunks,merkleRoot);
+      const num = await ethernalChatAcc1.getNumberOfChunks(acc1.address);
+      console.log(num);
+      
+      await ethernalChatAcc1.setStorageProvider(acc2.address);
+      await ethernalChatAcc1.addFundsForStorage({ value: ethers.parseEther("0.01") });
+
+      const tx = await ethernalChatAcc2.getChallenge(acc1.address);
+      tx.wait()
+      const index = await ethernalChatAcc2.getChallengeIndex(acc1.address);
+
+
+
+      const { chunkData, proof, merkleRoot: mr2 } = generateProof(data, Number(chunkSize), Number(index));
+
+      console.log('Chunk Data:', chunkData?.toString('hex'));
+      console.log('Proof:', proof?.map(p => p.toString('hex')));
+      console.log('Merkle Root:', mr2.toString('hex'));
+
+      expect(chunkData).to.not.be.undefined;
+      expect(proof).to.not.be.undefined;
+
+      const proofHashes = proof?.map(p => toHex(p));
+
+      const tx2 = await ethernalChatAcc2.getStorageReward(acc1.address,toHex(chunkData as Buffer),proofHashes as string[]);
+
+      
+
+    });
+  });
+});
+
+
+
 function CidToBytes(newCid: CID): string {
   // const cidObj = CID.parse(newCid);
   const cidBytes = newCid.multihash.bytes.slice(2);
@@ -48,225 +240,92 @@ function bytesToCid(cidStored: string): CID {
   return newCid;
 }
 
-function chunkString(str: string, chunkSize: number): string[] {
-  const chunks: string[] = [];
-  for (let i = 0; i < str.length; i += chunkSize) {
-    chunks.push(str.slice(i, i + chunkSize));
+
+
+
+interface ChunkResult {
+  chunkData: Buffer | undefined;
+  proof: Buffer[] | undefined;
+  merkleRoot: Buffer;
+  numChunks: Number;
+}
+
+// Function to chunk a Buffer into specified size
+function chunkBuffer(buffer: Buffer, chunkSize: number): Buffer[] {
+  const chunks: Buffer[] = [];
+  for (let i = 0; i < buffer.length; i += chunkSize) {
+    chunks.push(buffer.slice(i, i + chunkSize));
   }
   return chunks;
 }
 
-function hashChunk(chunk: string): string {
-  return keccak256(Buffer.from(chunk));
-}
-
-function calculateMerkleRoot(hashes: string[]): string {
-  if (hashes.length === 1) {
-    return hashes[0];
-  }
-
-  const newHashes: string[] = [];
-  for (let i = 0; i < hashes.length; i += 2) {
-    if (i + 1 < hashes.length) {
-      // Concatenate the hashes and hash them again
-      const combinedHash = keccak256(
-        Buffer.concat([Buffer.from(hashes[i].slice(2), "hex"), Buffer.from(hashes[i + 1].slice(2), "hex")]),
-      );
-      newHashes.push(combinedHash);
-    } else {
-      // If there is an odd number of elements, push the last one
-      newHashes.push(hashes[i]);
-    }
-  }
-
-  return calculateMerkleRoot(newHashes);
-}
-
-function getMerkleRootFromJson(json: string, chunkSize: number): string {
-  const chunks = chunkString(json, chunkSize);
-  const hashes = chunks.map(hashChunk);
-  return calculateMerkleRoot(hashes);
-}
-
-function loghashes(left : string , right : string,combinedHash?: string){
-  console.log("left hash",left,"left right",right)
-}
-// Function to generate proof hashes for a given index
-function getProofHashesFromJson(json: string, chunkSize: number, index: number): {proofHashes: string[],chunkData:string} {
-  const chunks = chunkString(json, chunkSize);
-  const hashes = chunks.map(hashChunk);
-  let proofHashes: string[] = [];
-  const N = hashes.length;
-  const numProofHashes = Math.ceil(Math.log2(N));
-  let currentLayer = hashes;
-  let idx = index;
-  for (let i = 0; i < numProofHashes; i++) {
-      const nextLayer: string[] = [];
-      for (let j = 0; j < currentLayer.length; j += 2) {
-          const left = currentLayer[j];
-          const right = currentLayer[j + 1] || left; // Handle odd number of elements
-          loghashes(left,right)
-          const combinedHash = keccak256('0x'+left.slice(2) + right.slice(2));
-          nextLayer.push(combinedHash);
-
-          if (j === idx || j + 1 === idx) {
-              proofHashes.push(j === idx ? right : left);
-              idx = Math.floor(j / 2);
-          }
+// Function to build the Merkle tree
+function buildMerkleTree(leaves: Buffer[]): Buffer[][] {
+  let tree: Buffer[][] = [leaves];
+  while (tree[tree.length - 1].length > 1) {
+    const level: Buffer[] = [];
+    const nodes = tree[tree.length - 1];
+    for (let i = 0; i < nodes.length; i += 2) {
+      if (i + 1 < nodes.length) {
+        const combined = Buffer.concat([nodes[i], nodes[i + 1]]);
+        level.push(Buffer.from(keccak256(combined).slice(2), 'hex'));
+      } else {
+        level.push(nodes[i]); // Handle odd number of nodes
       }
-      currentLayer = nextLayer;
-  }
-
-  return {proofHashes, chunkData: chunks[index]};
-}
-function chunkData(data:string, chunkSize: number, padChar = '~') {
-  let chunks = [];
-  for (let i = 0; i < data.length; i += chunkSize) {
-    let chunk = data.slice(i, i + chunkSize);
-    if (chunk.length < chunkSize) {
-      chunk = chunk.padEnd(chunkSize, padChar);
     }
-    chunks.push(chunk);
+    tree.push(level);
   }
-  return chunks;
+  return tree;
 }
 
-function unchunkData(chunks: string[], padChar = "~") {
-  let data = chunks.join("");
-  // Remove the padding from the end
-  // This regex ensures that only the padding at the end is removed
-  return data.replace(new RegExp(padChar + "+$"), "");
-}
-
-describe("EthernalChatIncentivized", function () {
-  async function getCidAndData(data: any, numChunks?: bigint, chunkSize?: bigint) {
-    const dataJson = JSON.stringify(data);
-    const size = BigInt(new Blob([dataJson]).size);
-    if (!chunkSize && numChunks) {
-      chunkSize = size / numChunks;
-    } else if (chunkSize) {
-      numChunks = size / chunkSize;
-      if (size % chunkSize != 0n) {
-        numChunks += 1n;
-      }
-    } else {
-      throw Error("numChunks or ChunkSize should be specified");
+// Function to generate the Merkle proof
+function generateMerkleProof(tree: Buffer[][], index: number): Buffer[] {
+  const proof: Buffer[] = [];
+  for (let i = 0; i < tree.length - 1; i++) {
+    const level = tree[i];
+    const isRightNode = index % 2;
+    const pairIndex = isRightNode ? index - 1 : index + 1;
+    if (pairIndex < level.length) {
+      proof.push(level[pairIndex]);
     }
+    index = Math.floor(index / 2);
+  }
+  return proof;
+}
 
-    const cidHash = await Hash.of(dataJson);
-    const cid = CID.parse(cidHash);
+// Main function to generate proof
+export function generateProof(jsonData: object, chunkSize: number,index?: number): ChunkResult {
+  // Convert JSON object to Buffer
+  const jsonString = JSON.stringify(jsonData);
+  const jsonBuffer = Buffer.from(jsonString, 'utf-8');
 
-    const cidBytes = CidToBytes(cid);
+  // Chunk the Buffer into specified size
+  const chunks = chunkBuffer(jsonBuffer, chunkSize);
+  const numChunks = chunks.length
 
-    const merkleRoot = getMerkleRootFromJson(dataJson, Number(chunkSize));
+  // Hash each chunk
+  const leaves = chunks.map(chunk => Buffer.from(keccak256(chunk).slice(2), 'hex'));
 
-    return {
-      cidBytes,
-      cid,
-      merkleRoot,
-      chunkSize,
-      numChunks,
-    };
+  // Build the Merkle tree
+  const tree = buildMerkleTree(leaves);
+
+  // Generate the Merkle proof
+  let proof;
+  let chunkData;
+  if(index){
+    proof = generateMerkleProof(tree, index);
+    chunkData= chunks[index];;
   }
 
-  describe("SetCID", function () {
-    it("should properly add a CID for the first time", async function () {
-      const {ethernalChat, acc1, acc2} = await loadFixture(deployContract);
-      const ethernalChatAcc1 = ethernalChat.connect(acc1)
-      const data = [{"test":1}];
-      const numChunks = 2n;
-      const { cidBytes, merkleRoot, chunkSize, cid } = await getCidAndData(data, numChunks);
 
-      const response = await ethernalChatAcc1.setCID(cidBytes, numChunks, chunkSize, merkleRoot);
-      response.wait();
-      const storedCidString = await ethernalChatAcc1.getCID(acc1.address);
-      const storedCid = bytesToCid(storedCidString);
-      expect(cid.multihash.bytes).to.eqls(storedCid.multihash.bytes);
-    });
+  // Get the Merkle root
+  const merkleRoot = tree[tree.length - 1][0];
 
-    it("should add new CID when appending data", async function () {
-      const { ethernalChat, acc1 } = await loadFixture(deployContract);
-      const ethernalChatAcc1 = ethernalChat.connect(acc1);
-      const data = [{ test: 1 }];
-      const data2 = [{ test: 1 }, { test2: 2 }];
-      const numChunks = 2n;
-      const { cidBytes, merkleRoot, chunkSize } = await getCidAndData(data, numChunks);
-      const { cidBytes: cidBytes2, merkleRoot: mr2, chunkSize: chunkSize2 } = await getCidAndData(data2, numChunks);
-      await ethernalChatAcc1.setCID(cidBytes, numChunks, chunkSize, merkleRoot);
-      await ethernalChatAcc1.setCID(cidBytes2, numChunks, chunkSize2, mr2);
+  return {
+    chunkData,
+    proof,
+    merkleRoot,
+    numChunks
+  };
+}
 
-      const storedCidString = await ethernalChatAcc1.getCID(acc1.address);
-      expect(cidBytes2).to.eqls(storedCidString);
-    });
-
-    it("should add new CID when modifying data", async function () {
-      const { ethernalChat, acc1 } = await loadFixture(deployContract);
-      const ethernalChatAcc1 = ethernalChat.connect(acc1);
-      const data = [{ test: 1 }];
-      const data2 = [{ test1: 1 }];
-      const numChunks = 2n;
-      const { cidBytes, merkleRoot, chunkSize } = await getCidAndData(data, numChunks);
-      const { cidBytes: cidBytes2, merkleRoot: mr2, chunkSize: chunkSize2 } = await getCidAndData(data2, numChunks);
-      await ethernalChatAcc1.setCID(cidBytes, numChunks, chunkSize, merkleRoot);
-      await ethernalChatAcc1.setCID(cidBytes2, numChunks, chunkSize2, mr2);
-
-      const storedCidString = await ethernalChatAcc1.getCID(acc1.address);
-      expect(cidBytes2).to.eqls(storedCidString);
-    });
-
-    it("Should set storage provider", async function () {
-      const { ethernalChat, acc1, acc2 } = await loadFixture(deployContract);
-      const ethernalChatAcc1 = ethernalChat.connect(acc1);
-      await ethernalChatAcc1.setStorageProvider(acc2.address);
-      const storageProvider = await ethernalChatAcc1.getStorageProvider(acc1.address);
-      expect(storageProvider).to.equal(acc2.address);
-    });
-
-    it("Should add funds for storage", async function () {
-      const { ethernalChat, acc1, acc2 } = await loadFixture(deployContract);
-      const ethernalChatAcc1 = ethernalChat.connect(acc1);
-      const data = [{ test: 1 }];
-      const numChunks = 2n;
-      const { cidBytes, merkleRoot, chunkSize, cid } = await getCidAndData(data, numChunks);
-      await ethernalChatAcc1.connect(acc1).setCID(cidBytes, numChunks, chunkSize, merkleRoot);
-      await ethernalChatAcc1.connect(acc1).addFundsForStorage({ value: ethers.parseEther("1") });
-      const ethAllocated = await ethernalChatAcc1.getAllocatedEthToStorageProvider(acc1.address);
-      expect(ethAllocated).to.equal(ethers.parseEther("1"));
-    });
-  });
-
-
-  describe("Challenge and Proof", function () {
-    it("shouldn't allow for getting challenges two times", async function () {
-      const {ethernalChat, acc1, acc2} = await loadFixture(deployContract);
-      const ethernalChatAcc1 = ethernalChat.connect(acc1)
-      const ethernalChatAcc2 = ethernalChat.connect(acc2)
-      const data = [{"test":1},{"test":2},{"test":3},{"test":4},{"test":"It doesn't make sense it is just data"}];
-      const numChunks = 10n;
-      const {cidBytes,merkleRoot, chunkSize, cid} = await getCidAndData(data,numChunks)
-
-      await ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot);
-      await ethernalChatAcc1.setStorageProvider(acc2.address);
-
-      await ethernalChatAcc2.getChallenge(acc1.address);
-      await expect(ethernalChatAcc2.getChallenge(acc1.address)).to.be.rejectedWith("You already asked for a challenge");
-    });
-
-    it("should validate a valid proof", async function () {
-      const {ethernalChat, acc1, acc2} = await loadFixture(deployContract);
-      const ethernalChatAcc1 = ethernalChat.connect(acc1)
-      const ethernalChatAcc2 = ethernalChat.connect(acc2)
-      const data = [{"test":1},{"test":2},{"test":3},{"test":4},{"test":"It doesn't make sense it is just data"}];
-      const dataJson = JSON.stringify(data);
-      const numChunks = 10n;
-      const {cidBytes,merkleRoot, chunkSize, cid} = await getCidAndData(data,numChunks)
-
-      await ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot);
-      await ethernalChatAcc1.setStorageProvider(acc2.address);
-
-      const tx = await ethernalChatAcc2.getChallenge(acc1.address);
-      const index = Number(BigInt(tx.data));
-      const {proofHashes,chunkData} = getProofHashesFromJson(dataJson,Number(chunkSize),index);
-    });
-  });
-});
