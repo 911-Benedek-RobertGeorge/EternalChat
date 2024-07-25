@@ -1,0 +1,687 @@
+{
+  "address": "0xE2c3f2db29Cf88C50E2dde875F8431CBd4a7BeB2",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableInvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "cid",
+          "type": "bytes32"
+        }
+      ],
+      "name": "CIDUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "challengeIndex",
+          "type": "uint64"
+        }
+      ],
+      "name": "Challenge",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "PRICE_PER_DAY",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "addFundsForStorage",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "name": "getAllocatedEthToStorageProvider",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "name": "getCID",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "name": "getChallenge",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "name": "getChallengeIndex",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "name": "getChunkSize",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "name": "getNumberOfChunks",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "name": "getStorageProvider",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "chunkData",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "hashes",
+          "type": "bytes32[]"
+        }
+      ],
+      "name": "getStorageReward",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "name": "getTotalEthToStorageProvider",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "cid",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint64",
+          "name": "sizeOfChunks",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "numberOfChunks",
+          "type": "uint64"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "newMerkleRoot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "setCID",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "name": "setStorageProvider",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "withdrawRewards",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xdde5619d5ca07343ba04ead621aca579eb6cd2830dcb91e12436c4d411abfddf",
+  "receipt": {
+    "to": null,
+    "from": "0xC6CbDd7D90458c5e1003DdE243bF1561efAeE516",
+    "contractAddress": "0xE2c3f2db29Cf88C50E2dde875F8431CBd4a7BeB2",
+    "transactionIndex": 48,
+    "gasUsed": "1060333",
+    "logsBloom": "0x00000000000000000000000000000000400400000000020000800000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000020000000000000000000800000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000004000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x75cecd7abb21c2eb2a638889871fb915a12d4ba135127c5455df33e3320e2cd5",
+    "transactionHash": "0xdde5619d5ca07343ba04ead621aca579eb6cd2830dcb91e12436c4d411abfddf",
+    "logs": [
+      {
+        "transactionIndex": 48,
+        "blockNumber": 6372974,
+        "transactionHash": "0xdde5619d5ca07343ba04ead621aca579eb6cd2830dcb91e12436c4d411abfddf",
+        "address": "0xE2c3f2db29Cf88C50E2dde875F8431CBd4a7BeB2",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000c6cbdd7d90458c5e1003dde243bf1561efaee516"
+        ],
+        "data": "0x",
+        "logIndex": 83,
+        "blockHash": "0x75cecd7abb21c2eb2a638889871fb915a12d4ba135127c5455df33e3320e2cd5"
+      }
+    ],
+    "blockNumber": 6372974,
+    "cumulativeGasUsed": "13591238",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "f6b7b7c222725e40d1ace59cee45cccd",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"OwnableInvalidOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"OwnableUnauthorizedAccount\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"cid\",\"type\":\"bytes32\"}],\"name\":\"CIDUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"challengeIndex\",\"type\":\"uint64\"}],\"name\":\"Challenge\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"PRICE_PER_DAY\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"addFundsForStorage\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"getAllocatedEthToStorageProvider\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"getCID\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"getChallenge\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"getChallengeIndex\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"getChunkSize\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"getNumberOfChunks\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"getStorageProvider\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"chunkData\",\"type\":\"bytes\"},{\"internalType\":\"bytes32[]\",\"name\":\"hashes\",\"type\":\"bytes32[]\"}],\"name\":\"getStorageReward\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"getTotalEthToStorageProvider\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"cid\",\"type\":\"bytes32\"},{\"internalType\":\"uint64\",\"name\":\"sizeOfChunks\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"numberOfChunks\",\"type\":\"uint64\"},{\"internalType\":\"bytes32\",\"name\":\"newMerkleRoot\",\"type\":\"bytes32\"}],\"name\":\"setCID\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"setStorageProvider\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"withdrawRewards\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"This contract implements a relatively simple way of storing messages\",\"errors\":{\"OwnableInvalidOwner(address)\":[{\"details\":\"The owner is not a valid owner account. (eg. `address(0)`)\"}],\"OwnableUnauthorizedAccount(address)\":[{\"details\":\"The caller account is not authorized to perform an operation.\"}]},\"kind\":\"dev\",\"methods\":{\"addFundsForStorage()\":{\"details\":\"Make sure the DataInfo is non zero (has been already created)\"},\"getCID(address)\":{\"details\":\"Passes when the user has a CID stored. This function is view only, so it doesn't modify the state of the contract\",\"params\":{\"addr\":\"Address of the account you are trying to access the data from\"},\"returns\":{\"_0\":\"The CID associated with the user.\"}},\"getChallenge(address)\":{\"params\":{\"addr\":\"Address of the account you are trying to get a challenge from.\"}},\"getChallengeIndex(address)\":{\"params\":{\"addr\":\"Address of the account you are trying to get a challenge from.\"}},\"getStorageReward(address,bytes,bytes32[])\":{\"params\":{\"addr\":\"Address of the account you are trying to get the reward from.\",\"hashes\":\"Array of hashes allowing the proof : it should be ordered by the level in the merkle tree from the leafs.  it should allow the proof to pass.\"}},\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner.\"},\"setCID(bytes32,uint64,uint64,bytes32)\":{\"params\":{\"cid\":\"The CID to set for the user.\",\"newMerkleRoot\":\"The calculated merkle root corresponding of the hash of each chunks, then the hash of each chunk concatenated 2-by-2...\",\"numberOfChunks\":\"The number of chunks we divided the data for the storage proof. (Total number of chunks)\",\"sizeOfChunks\":\"The size of each chunks. (Padding need to be applied for the last chunk if necessary)\"}},\"setStorageProvider(address)\":{\"params\":{\"addr\":\"Address of the account you are trying to set as a storage provider.\"}},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"}},\"title\":\"A simple chat contract that stores a link between users and messages on IPFS\",\"version\":1},\"userdoc\":{\"events\":{\"CIDUpdated(address,bytes32)\":{\"notice\":\"Amount of tokens required for storing a message\"},\"Challenge(address,uint64)\":{\"notice\":\"Challenge for address addr\"}},\"kind\":\"user\",\"methods\":{\"PRICE_PER_DAY()\":{\"notice\":\"Amount of eth earned for storing files per day\"},\"addFundsForStorage()\":{\"notice\":\"Add funds to an existing DataInfo by sending tokens and updating\"},\"constructor\":{\"notice\":\"Constructor function\"},\"getCID(address)\":{\"notice\":\"Retrieves the CID (Content Identifier) stored for the user.\"},\"getChallenge(address)\":{\"notice\":\"Generate the challenge for the proof of Storage to use with getStorageReward.\"},\"getChallengeIndex(address)\":{\"notice\":\"Get the challenge index generated before\"},\"getStorageReward(address,bytes,bytes32[])\":{\"notice\":\"Allows storage to reedem a partial amount of reward in token by answering to the challenge. They can do it only once per day. The full reedmed amount can be withdraw after a month (30days) since lastWithdrawTime see withdrawRewards()\"},\"setCID(bytes32,uint64,uint64,bytes32)\":{\"notice\":\"Sets the CID (Content Identifier) for the sender of the transaction.\"},\"withdrawRewards()\":{\"notice\":\"Take out all the rewards in Eth based on the amount of tokens the address holds\"}},\"notice\":\"You can use this contract for keeping a descentralized chat history\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/EthernalChatIncentivized.sol\":\"EthernalChatIncentivized\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/access/Ownable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (access/Ownable.sol)\\n\\npragma solidity ^0.8.20;\\n\\nimport {Context} from \\\"../utils/Context.sol\\\";\\n\\n/**\\n * @dev Contract module which provides a basic access control mechanism, where\\n * there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * The initial owner is set to the address provided by the deployer. This can\\n * later be changed with {transferOwnership}.\\n *\\n * This module is used through inheritance. It will make available the modifier\\n * `onlyOwner`, which can be applied to your functions to restrict their use to\\n * the owner.\\n */\\nabstract contract Ownable is Context {\\n    address private _owner;\\n\\n    /**\\n     * @dev The caller account is not authorized to perform an operation.\\n     */\\n    error OwnableUnauthorizedAccount(address account);\\n\\n    /**\\n     * @dev The owner is not a valid owner account. (eg. `address(0)`)\\n     */\\n    error OwnableInvalidOwner(address owner);\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /**\\n     * @dev Initializes the contract setting the address provided by the deployer as the initial owner.\\n     */\\n    constructor(address initialOwner) {\\n        if (initialOwner == address(0)) {\\n            revert OwnableInvalidOwner(address(0));\\n        }\\n        _transferOwnership(initialOwner);\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        _checkOwner();\\n        _;\\n    }\\n\\n    /**\\n     * @dev Returns the address of the current owner.\\n     */\\n    function owner() public view virtual returns (address) {\\n        return _owner;\\n    }\\n\\n    /**\\n     * @dev Throws if the sender is not the owner.\\n     */\\n    function _checkOwner() internal view virtual {\\n        if (owner() != _msgSender()) {\\n            revert OwnableUnauthorizedAccount(_msgSender());\\n        }\\n    }\\n\\n    /**\\n     * @dev Leaves the contract without owner. It will not be possible to call\\n     * `onlyOwner` functions. Can only be called by the current owner.\\n     *\\n     * NOTE: Renouncing ownership will leave the contract without an owner,\\n     * thereby disabling any functionality that is only available to the owner.\\n     */\\n    function renounceOwnership() public virtual onlyOwner {\\n        _transferOwnership(address(0));\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Can only be called by the current owner.\\n     */\\n    function transferOwnership(address newOwner) public virtual onlyOwner {\\n        if (newOwner == address(0)) {\\n            revert OwnableInvalidOwner(address(0));\\n        }\\n        _transferOwnership(newOwner);\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Internal function without access restriction.\\n     */\\n    function _transferOwnership(address newOwner) internal virtual {\\n        address oldOwner = _owner;\\n        _owner = newOwner;\\n        emit OwnershipTransferred(oldOwner, newOwner);\\n    }\\n}\\n\",\"keccak256\":\"0xff6d0bb2e285473e5311d9d3caacb525ae3538a80758c10649a4d61029b017bb\",\"license\":\"MIT\"},\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the value of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the value of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 value) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the\\n     * caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 value) external returns (bool);\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from `from` to `to` using the\\n     * allowance mechanism. `value` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(address from, address to, uint256 value) external returns (bool);\\n}\\n\",\"keccak256\":\"0xc6a8ff0ea489379b61faa647490411b80102578440ab9d84e9a957cc12164e70\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n\\n    function _contextSuffixLength() internal view virtual returns (uint256) {\\n        return 0;\\n    }\\n}\\n\",\"keccak256\":\"0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2\",\"license\":\"MIT\"},\"contracts/EthernalChatIncentivized.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\nimport { Ownable } from \\\"@openzeppelin/contracts/access/Ownable.sol\\\";\\nimport { IERC20 } from \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\n\\n/// @title A simple chat contract that stores a link between users and messages on IPFS\\n/// @notice You can use this contract for keeping a descentralized chat history\\n/// @dev This contract implements a relatively simple way of storing messages\\ncontract EthernalChatIncentivized is Ownable {\\n\\tstruct DataInfo {\\n\\t\\tbytes32 cid;\\n\\t\\t// Below is needed for the simple proof of storage done here\\n\\t\\tbytes32 merkleRoot; // Root of the merkle tree\\n\\t\\tuint64 sizeOfChunks; // Help checking the size of the data during proof verification\\n\\t\\tuint64 numberOfChunks;\\n\\t\\t//  Address of the storage provider we want to incentivize\\n\\t\\taddress storageProvider; // This could be a list but for now only one\\n\\t\\tbool challengeAsked;\\n\\t\\tuint64 lastChallengeIndex;\\n\\t\\tuint256 lastTimeRewardRedeemed; // Represent the last time the storageProvider redeemed a reward with a challenge\\n\\t\\tuint256 allocatedEth;\\n\\t\\tuint256 ethSpent; // total eth earned by storage providers (spent by the user)\\n\\t}\\n\\n\\tstruct ProviderInfo {\\n\\t\\tuint256 totalEthEarned;\\n\\t\\tuint256 lastWithdrawTime;\\n\\t}\\n\\n\\t/// @notice Amount of eth earned for storing files per day\\n\\tuint256 public constant PRICE_PER_DAY = 0.0001 ether;\\n\\t/// @notice Mapping of CID/DataInfo of the stored messages for each account\\n\\tmapping(address => DataInfo) private mapDataInfo;\\n\\n\\t/// @notice Mapping of the storage providers rewards info\\n\\tmapping(address => ProviderInfo) private mapProviderInfo;\\n\\n\\t/// @notice Amount of tokens required for storing a message\\n\\tevent CIDUpdated(address indexed user, bytes32 cid);\\n\\n\\t\\t/// @notice Challenge for address addr\\n\\tevent Challenge(address indexed addr, uint64 challengeIndex);\\n\\n\\tmodifier OnlyStorageProvider(address addr) {\\n\\t\\trequire(\\n\\t\\t\\tmsg.sender == mapDataInfo[addr].storageProvider,\\n\\t\\t\\t\\\"You need to be the storage provider for this address\\\"\\n\\t\\t);\\n\\t\\t_;\\n\\t}\\n\\n\\t/// @notice Constructor function\\n\\tconstructor() Ownable(msg.sender) {}\\n\\n\\t/// @notice Sets the CID (Content Identifier) for the sender of the transaction.\\n\\t/// @param cid The CID to set for the user.\\n\\t/// @param sizeOfChunks The size of each chunks. (Padding need to be applied for the last chunk if necessary)\\n\\t/// @param numberOfChunks The number of chunks we divided the data for the storage proof. (Total number of chunks)\\n\\t/// @param newMerkleRoot The calculated merkle root corresponding of the hash of each chunks, then the hash of each chunk concatenated 2-by-2...\\n\\tfunction setCID(\\n\\t\\tbytes32 cid,\\n\\t\\tuint64 sizeOfChunks,\\n\\t\\tuint64 numberOfChunks,\\n\\t\\tbytes32 newMerkleRoot\\n\\t) public {\\n\\t\\trequire(cid != bytes32(0), \\\"Invalid CID\\\");\\n\\t\\trequire(newMerkleRoot != bytes32(0), \\\"Invalid Merkle Root\\\");\\n\\t\\tDataInfo storage dataInfo = mapDataInfo[msg.sender];\\n\\n\\t\\tdataInfo.cid = cid;\\n\\t\\tdataInfo.sizeOfChunks = sizeOfChunks;\\n\\t\\tdataInfo.numberOfChunks = numberOfChunks;\\n\\t\\tdataInfo.merkleRoot = newMerkleRoot;\\n\\n\\t\\temit CIDUpdated(msg.sender, cid);\\n\\t}\\n\\n\\t// Set Storage Provider (or update it)\\n\\n\\t// /// @notice Adds or updates a user's storage provider\\n\\t/// @param addr Address of the account you are trying to set as a storage provider.\\n\\t// /// @dev\\n\\tfunction setStorageProvider(address addr) public {\\n\\t\\tProviderInfo storage providerInfo = mapProviderInfo[addr];\\n\\t\\tmapDataInfo[msg.sender].storageProvider = addr;\\n\\t\\tif (providerInfo.lastWithdrawTime == 0) {\\n\\t\\t\\tproviderInfo.lastWithdrawTime = block.timestamp;\\n\\t\\t\\tproviderInfo.totalEthEarned = 0 ether;\\n\\t\\t}\\n\\t\\tproviderInfo.lastWithdrawTime = providerInfo.lastWithdrawTime;\\n\\t\\tproviderInfo.totalEthEarned = providerInfo.totalEthEarned;\\n\\t}\\n\\n\\t/// @notice Add funds to an existing DataInfo by sending tokens and updating\\n\\t/// @dev Make sure the DataInfo is non zero (has been already created)\\n\\tfunction addFundsForStorage() public payable {\\n\\t\\tDataInfo storage dataInfo = mapDataInfo[msg.sender];\\n\\t\\trequire(dataInfo.cid != bytes32(0), \\\"DataInfo not found\\\");\\n\\t\\tdataInfo.allocatedEth += msg.value;\\n\\t}\\n\\n\\t/// @notice Retrieves the CID (Content Identifier) stored for the user.\\n\\t/// @param addr Address of the account you are trying to access the data from\\n\\t/// @return The CID associated with the user.\\n\\t/// @dev Passes when the user has a CID stored. This function is view only, so it doesn't modify the state of the contract\\n\\tfunction getCID(address addr) public view returns (bytes32) {\\n\\t\\tDataInfo memory dataInfo = mapDataInfo[addr];\\n\\t\\trequire(dataInfo.cid != bytes32(0), \\\"No CID found for this address\\\");\\n\\t\\treturn dataInfo.cid;\\n\\t}\\n\\n\\t\\n\\tfunction getStorageProvider(address addr) public view returns (address) {\\n\\t\\treturn mapDataInfo[addr].storageProvider;\\n\\t}\\n\\n\\tfunction getAllocatedEthToStorageProvider(\\n\\t\\taddress addr\\n\\t) public view returns (uint256) {\\n\\t\\treturn mapDataInfo[addr].allocatedEth;\\n\\t}\\n\\n\\tfunction getTotalEthToStorageProvider(\\n\\t\\taddress addr\\n\\t) public view returns (uint256) {\\n\\t\\treturn mapProviderInfo[addr].totalEthEarned;\\n\\t}\\n\\n\\t\\n\\t//\\t\\t\\t\\t\\t\\t\\t  //\\n\\t//   \\t\\t\\t\\t\\t\\t  //\\n\\t// Storage Provider functions //\\n\\t//   \\t\\t\\t\\t\\t\\t  //\\n\\t//   \\t\\t\\t\\t\\t\\t  //\\n\\n\\n\\tfunction getNumberOfChunks(address addr) public view  returns (uint64){\\n\\t\\treturn mapDataInfo[addr].numberOfChunks;\\n\\t}\\n\\n\\tfunction getChunkSize(address addr) public view  returns (uint64){\\n\\t\\treturn mapDataInfo[addr].sizeOfChunks;\\n\\t}\\n\\n\\t/// @notice Generate the challenge for the proof of Storage to use with getStorageReward.\\n\\t/// @param addr Address of the account you are trying to get a challenge from.\\n\\tfunction getChallenge(\\n\\t\\taddress addr\\n\\t) public OnlyStorageProvider(addr){\\n\\t\\tDataInfo storage dataInfo = mapDataInfo[addr];\\n\\t\\trequire(\\n\\t\\t\\tdataInfo.cid != bytes32(0),\\n\\t\\t\\t\\\"No DataInfo found for this address\\\"\\n\\t\\t);\\n\\t\\trequire(\\n\\t\\t\\tblock.timestamp >= dataInfo.lastTimeRewardRedeemed + 1 days,\\n\\t\\t\\t\\\"Not Enough time has passed\\\"\\n\\t\\t);\\n\\t\\trequire(\\n\\t\\t\\tdataInfo.challengeAsked == false,\\n\\t\\t\\t\\\"You already asked for a challenge\\\"\\n\\t\\t);\\n\\t\\tdataInfo.lastChallengeIndex = uint64(block.prevrandao) % dataInfo.numberOfChunks;\\n\\t\\tdataInfo.challengeAsked = true;\\n\\t\\temit Challenge(addr,dataInfo.lastChallengeIndex);\\n\\t}\\n\\n\\t/// @notice Get the challenge index generated before\\n\\t/// @param addr Address of the account you are trying to get a challenge from.\\n\\tfunction getChallengeIndex(address addr) public view returns(uint64){\\n\\t\\treturn mapDataInfo[addr].lastChallengeIndex;\\n\\t}\\n\\n\\tfunction verifyStorageProof(\\n\\t\\tuint index,\\n\\t\\tbytes32 merkleRoot,\\n\\t\\tbytes memory chunkData,\\n\\t\\tbytes32[] memory hashes\\n\\t) internal pure returns (bool) {\\n\\t\\tbytes32 chunkHash = keccak256(chunkData);\\n\\t\\tfor (uint i = 0; i < hashes.length; i++) {\\n\\t\\t\\tif (index % 2 == 0) {\\n\\t\\t\\t\\tchunkHash = keccak256(abi.encodePacked(chunkHash, hashes[i]));\\n\\t\\t\\t} else {\\n\\t\\t\\t\\tchunkHash = keccak256(abi.encodePacked(hashes[i], chunkHash));\\n\\t\\t\\t}\\n\\t\\t\\tindex = index / 2;\\n\\t\\t}\\n\\t\\treturn chunkHash == merkleRoot;\\n\\t}\\n\\n\\t/// @notice Allows storage to reedem a partial amount of reward in token by answering to the challenge. They can do it only once per day.\\n\\t/// The full reedmed amount can be withdraw after a month (30days) since lastWithdrawTime see withdrawRewards()\\n\\t/// @param addr Address of the account you are trying to get the reward from.\\n\\t/// @param hashes Array of hashes allowing the proof : it should be ordered by the level in the merkle tree from the leafs.\\n\\t///  it should allow the proof to pass.\\n\\tfunction getStorageReward(\\n\\t\\taddress addr,\\n\\t\\tbytes memory chunkData,\\n\\t\\tbytes32[] memory hashes\\n\\t) public OnlyStorageProvider(addr) {\\n\\t\\tDataInfo storage dataInfo = mapDataInfo[addr];\\n\\t\\tProviderInfo storage providerInfo = mapProviderInfo[\\n\\t\\t\\tdataInfo.storageProvider\\n\\t\\t];\\n\\t\\trequire(dataInfo.challengeAsked, \\\"No challenge was asked\\\");\\n\\t\\trequire(\\n\\t\\t\\tmapDataInfo[addr].cid != bytes32(0),\\n\\t\\t\\t\\\"No DataInfo store by this address\\\"\\n\\t\\t);\\n\\t\\trequire(\\n\\t\\t\\tblock.timestamp >= dataInfo.lastTimeRewardRedeemed + 1 days,\\n\\t\\t\\t\\\"Not Enough time has passed\\\"\\n\\t\\t);\\n\\n\\t\\trequire(\\n\\t\\t\\tdataInfo.ethSpent + PRICE_PER_DAY <= dataInfo.allocatedEth,\\n\\t\\t\\t\\\"The user hasn't allocated enough eth\\\"\\n\\t\\t);\\n\\n\\t\\trequire(\\n\\t\\t\\tverifyStorageProof(\\n\\t\\t\\t\\tdataInfo.lastChallengeIndex,\\n\\t\\t\\t\\tdataInfo.merkleRoot,\\n\\t\\t\\t\\tchunkData,\\n\\t\\t\\t\\thashes\\n\\t\\t\\t),\\n\\t\\t\\t\\\"The proof of Storage is incorrect\\\"\\n\\t\\t);\\n\\n\\t\\tdataInfo.lastTimeRewardRedeemed = block.timestamp;\\n\\t\\tdataInfo.lastChallengeIndex = 0;\\n\\t\\tdataInfo.ethSpent += PRICE_PER_DAY;\\n\\t\\tdataInfo.challengeAsked = false;\\n\\t\\tproviderInfo.totalEthEarned += PRICE_PER_DAY;\\n\\t}\\n\\n\\t/// @notice Take out all the rewards in Eth based on the amount of tokens the address holds\\n\\tfunction withdrawRewards() public {\\n\\t\\tProviderInfo storage provider = mapProviderInfo[msg.sender];\\n\\t\\tuint256 amount = provider.totalEthEarned;\\n\\t\\trequire(amount > 0, \\\"No rewards available\\\");\\n\\t\\trequire(\\n\\t\\t\\tblock.timestamp >= provider.lastWithdrawTime + 30 days,\\n\\t\\t\\t\\\"Not Enough time has passed\\\"\\n\\t\\t);\\n\\t\\tprovider.totalEthEarned = 0;\\n\\t\\t(bool success, ) = payable(msg.sender).call{ value: amount }(\\\"\\\");\\n\\t\\trequire(success);\\n\\t}\\n\\n\\n}\\n\",\"keccak256\":\"0xe03b4855cfe412338497e4ec0aa79b062c8aeced4843c1d28e51fc18c3183f93\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50338061003757604051631e4fbdf760e01b81526000600482015260240160405180910390fd5b61004081610046565b50610096565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b6111be806100a56000396000f3fe6080604052600436106100fe5760003560e01c80638da5cb5b11610095578063cdc99b6211610064578063cdc99b621461036f578063da72049e1461038f578063eb43da48146103a9578063f2fde38b146103b1578063f37381ad146103d157600080fd5b80638da5cb5b146102aa578063bfba5942146102c8578063c0149ef214610311578063c7b8981c1461035a57600080fd5b806359cb7a1f116100d157806359cb7a1f146101ae5780635ae6c51314610208578063715018a61461025c578063877427451461027157600080fd5b8063055b33e71461010357806319d94467146101365780631cf72d24146101585780632ce2ab4c14610178575b600080fd5b34801561010f57600080fd5b5061012361011e366004610e33565b6103f1565b6040519081526020015b60405180910390f35b34801561014257600080fd5b50610156610151366004610f1a565b6104f3565b005b34801561016457600080fd5b50610156610173366004610ff7565b6107b5565b34801561018457600080fd5b50610123610193366004610e33565b6001600160a01b031660009081526002602052604090205490565b3480156101ba57600080fd5b506101f06101c9366004610e33565b6001600160a01b03166000908152600160205260409020600201546001600160401b031690565b6040516001600160401b03909116815260200161012d565b34801561021457600080fd5b50610244610223366004610e33565b6001600160a01b039081166000908152600160205260409020600301541690565b6040516001600160a01b03909116815260200161012d565b34801561026857600080fd5b506101566108c5565b34801561027d57600080fd5b5061012361028c366004610e33565b6001600160a01b031660009081526001602052604090206005015490565b3480156102b657600080fd5b506000546001600160a01b0316610244565b3480156102d457600080fd5b506101f06102e3366004610e33565b6001600160a01b0316600090815260016020526040902060030154600160a81b90046001600160401b031690565b34801561031d57600080fd5b506101f061032c366004610e33565b6001600160a01b0316600090815260016020526040902060020154600160401b90046001600160401b031690565b34801561036657600080fd5b506101566108d9565b34801561037b57600080fd5b5061015661038a366004610e33565b6109bb565b34801561039b57600080fd5b50610123655af3107a400081565b610156610a0f565b3480156103bd57600080fd5b506101566103cc366004610e33565b610a7d565b3480156103dd57600080fd5b506101566103ec366004610e33565b610abb565b6001600160a01b0380821660009081526001602081815260408084208151610140810183528154808252948201549381019390935260028101546001600160401b0380821693850193909352600160401b9004821660608401526003810154958616608084015260ff600160a01b870416151560a0840152600160a81b9095041660c0820152600484015460e082015260058401546101008201526006909301546101208401529091906104ec5760405162461bcd60e51b815260206004820152601d60248201527f4e6f2043494420666f756e6420666f722074686973206164647265737300000060448201526064015b60405180910390fd5b5192915050565b6001600160a01b0383811660009081526001602052604090206003015484911633146105315760405162461bcd60e51b81526004016104e39061103b565b6001600160a01b0384811660009081526001602090815260408083206003810154948516845260029092529091209091600160a01b900460ff166105b05760405162461bcd60e51b8152602060048201526016602482015275139bc818da185b1b195b99d9481dd85cc8185cdad95960521b60448201526064016104e3565b6001600160a01b03861660009081526001602052604090205461061f5760405162461bcd60e51b815260206004820152602160248201527f4e6f2044617461496e666f2073746f72652062792074686973206164647265736044820152607360f81b60648201526084016104e3565b600482015461063190620151806110a5565b4210156106505760405162461bcd60e51b81526004016104e3906110be565b8160050154655af3107a4000836006015461066b91906110a5565b11156106c55760405162461bcd60e51b8152602060048201526024808201527f5468652075736572206861736e277420616c6c6f636174656420656e6f756768604482015263040cae8d60e31b60648201526084016104e3565b600382015460018301546106eb91600160a81b90046001600160401b0316908787610ca8565b6107415760405162461bcd60e51b815260206004820152602160248201527f5468652070726f6f66206f662053746f7261676520697320696e636f727265636044820152601d60fa1b60648201526084016104e3565b42600483015560038201805467ffffffffffffffff60a81b19169055600682018054655af3107a4000919060009061077a9084906110a5565b909155505060038201805460ff60a01b191690558054655af3107a40009082906000906107a89084906110a5565b9091555050505050505050565b836107f05760405162461bcd60e51b815260206004820152600b60248201526a125b9d985b1a590810d25160aa1b60448201526064016104e3565b806108335760405162461bcd60e51b8152602060048201526013602482015272125b9d985b1a590813595c9adb1948149bdbdd606a1b60448201526064016104e3565b336000818152600160208190526040918290208781556002810180546001600160401b03888116600160401b026fffffffffffffffffffffffffffffffff19909216908a161717905590810184905590519091907f82a6770235134bf5adb9f13818f51c095aff7b9b1e86f704703fcb4ea1c2e690906108b69088815260200190565b60405180910390a25050505050565b6108cd610d9a565b6108d76000610dc7565b565b33600090815260026020526040902080548061092e5760405162461bcd60e51b81526020600482015260146024820152734e6f207265776172647320617661696c61626c6560601b60448201526064016104e3565b60018201546109409062278d006110a5565b42101561095f5760405162461bcd60e51b81526004016104e3906110be565b6000808355604051339083908381818185875af1925050503d80600081146109a3576040519150601f19603f3d011682016040523d82523d6000602084013e6109a8565b606091505b50509050806109b657600080fd5b505050565b6001600160a01b038116600081815260026020908152604080832033845260019283905290832060030180546001600160a01b0319169094179093558201549003610a0b57426001820155600081555b5050565b3360009081526001602052604090208054610a615760405162461bcd60e51b815260206004820152601260248201527111185d18525b999bc81b9bdd08199bdd5b9960721b60448201526064016104e3565b34816005016000828254610a7591906110a5565b909155505050565b610a85610d9a565b6001600160a01b038116610aaf57604051631e4fbdf760e01b8152600060048201526024016104e3565b610ab881610dc7565b50565b6001600160a01b038181166000908152600160205260409020600301548291163314610af95760405162461bcd60e51b81526004016104e39061103b565b6001600160a01b03821660009081526001602052604090208054610b6a5760405162461bcd60e51b815260206004820152602260248201527f4e6f2044617461496e666f20666f756e6420666f722074686973206164647265604482015261737360f01b60648201526084016104e3565b6004810154610b7c90620151806110a5565b421015610b9b5760405162461bcd60e51b81526004016104e3906110be565b6003810154600160a01b900460ff1615610c015760405162461bcd60e51b815260206004820152602160248201527f596f7520616c72656164792061736b656420666f722061206368616c6c656e676044820152606560f81b60648201526084016104e3565b6002810154610c2090600160401b90046001600160401b03164461110b565b600382018054600160a01b68ffffffffffffffffff60a01b19909116600160a81b6001600160401b03948516810260ff60a01b1916919091179190911791829055604051910490911681526001600160a01b038416907f40871ff904cf6ca42f9dcbac1f7d50ab55381a1d0db3eedd5dd967b209f8d8239060200160405180910390a2505050565b81516020830120600090815b8351811015610d8e57610cc8600288611131565b600003610d215781848281518110610ce257610ce2611145565b6020026020010151604051602001610d04929190918252602082015260400190565b604051602081830303815290604052805190602001209150610d6f565b838181518110610d3357610d33611145565b602002602001015182604051602001610d56929190918252602082015260400190565b6040516020818303038152906040528051906020012091505b610d7a60028861115b565b965080610d868161116f565b915050610cb4565b50909314949350505050565b6000546001600160a01b031633146108d75760405163118cdaa760e01b81523360048201526024016104e3565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b80356001600160a01b0381168114610e2e57600080fd5b919050565b600060208284031215610e4557600080fd5b610e4e82610e17565b9392505050565b634e487b7160e01b600052604160045260246000fd5b604051601f8201601f191681016001600160401b0381118282101715610e9357610e93610e55565b604052919050565b600082601f830112610eac57600080fd5b813560206001600160401b03821115610ec757610ec7610e55565b8160051b610ed6828201610e6b565b9283528481018201928281019087851115610ef057600080fd5b83870192505b84831015610f0f57823582529183019190830190610ef6565b979650505050505050565b600080600060608486031215610f2f57600080fd5b610f3884610e17565b92506020808501356001600160401b0380821115610f5557600080fd5b818701915087601f830112610f6957600080fd5b813581811115610f7b57610f7b610e55565b610f8d601f8201601f19168501610e6b565b8181528985838601011115610fa157600080fd5b818585018683013760009181019094015291935060408601359180831115610fc857600080fd5b5050610fd686828701610e9b565b9150509250925092565b80356001600160401b0381168114610e2e57600080fd5b6000806000806080858703121561100d57600080fd5b8435935061101d60208601610fe0565b925061102b60408601610fe0565b9396929550929360600135925050565b60208082526034908201527f596f75206e65656420746f206265207468652073746f726167652070726f766960408201527364657220666f722074686973206164647265737360601b606082015260800190565b634e487b7160e01b600052601160045260246000fd5b808201808211156110b8576110b861108f565b92915050565b6020808252601a908201527f4e6f7420456e6f7567682074696d652068617320706173736564000000000000604082015260600190565b634e487b7160e01b600052601260045260246000fd5b60006001600160401b0380841680611125576111256110f5565b92169190910692915050565b600082611140576111406110f5565b500690565b634e487b7160e01b600052603260045260246000fd5b60008261116a5761116a6110f5565b500490565b6000600182016111815761118161108f565b506001019056fea264697066735822122016553bd36c6b6d440c2b325aade04247e5925f159e867dd46d5cf1027428683f64736f6c63430008140033",
+  "deployedBytecode": "0x6080604052600436106100fe5760003560e01c80638da5cb5b11610095578063cdc99b6211610064578063cdc99b621461036f578063da72049e1461038f578063eb43da48146103a9578063f2fde38b146103b1578063f37381ad146103d157600080fd5b80638da5cb5b146102aa578063bfba5942146102c8578063c0149ef214610311578063c7b8981c1461035a57600080fd5b806359cb7a1f116100d157806359cb7a1f146101ae5780635ae6c51314610208578063715018a61461025c578063877427451461027157600080fd5b8063055b33e71461010357806319d94467146101365780631cf72d24146101585780632ce2ab4c14610178575b600080fd5b34801561010f57600080fd5b5061012361011e366004610e33565b6103f1565b6040519081526020015b60405180910390f35b34801561014257600080fd5b50610156610151366004610f1a565b6104f3565b005b34801561016457600080fd5b50610156610173366004610ff7565b6107b5565b34801561018457600080fd5b50610123610193366004610e33565b6001600160a01b031660009081526002602052604090205490565b3480156101ba57600080fd5b506101f06101c9366004610e33565b6001600160a01b03166000908152600160205260409020600201546001600160401b031690565b6040516001600160401b03909116815260200161012d565b34801561021457600080fd5b50610244610223366004610e33565b6001600160a01b039081166000908152600160205260409020600301541690565b6040516001600160a01b03909116815260200161012d565b34801561026857600080fd5b506101566108c5565b34801561027d57600080fd5b5061012361028c366004610e33565b6001600160a01b031660009081526001602052604090206005015490565b3480156102b657600080fd5b506000546001600160a01b0316610244565b3480156102d457600080fd5b506101f06102e3366004610e33565b6001600160a01b0316600090815260016020526040902060030154600160a81b90046001600160401b031690565b34801561031d57600080fd5b506101f061032c366004610e33565b6001600160a01b0316600090815260016020526040902060020154600160401b90046001600160401b031690565b34801561036657600080fd5b506101566108d9565b34801561037b57600080fd5b5061015661038a366004610e33565b6109bb565b34801561039b57600080fd5b50610123655af3107a400081565b610156610a0f565b3480156103bd57600080fd5b506101566103cc366004610e33565b610a7d565b3480156103dd57600080fd5b506101566103ec366004610e33565b610abb565b6001600160a01b0380821660009081526001602081815260408084208151610140810183528154808252948201549381019390935260028101546001600160401b0380821693850193909352600160401b9004821660608401526003810154958616608084015260ff600160a01b870416151560a0840152600160a81b9095041660c0820152600484015460e082015260058401546101008201526006909301546101208401529091906104ec5760405162461bcd60e51b815260206004820152601d60248201527f4e6f2043494420666f756e6420666f722074686973206164647265737300000060448201526064015b60405180910390fd5b5192915050565b6001600160a01b0383811660009081526001602052604090206003015484911633146105315760405162461bcd60e51b81526004016104e39061103b565b6001600160a01b0384811660009081526001602090815260408083206003810154948516845260029092529091209091600160a01b900460ff166105b05760405162461bcd60e51b8152602060048201526016602482015275139bc818da185b1b195b99d9481dd85cc8185cdad95960521b60448201526064016104e3565b6001600160a01b03861660009081526001602052604090205461061f5760405162461bcd60e51b815260206004820152602160248201527f4e6f2044617461496e666f2073746f72652062792074686973206164647265736044820152607360f81b60648201526084016104e3565b600482015461063190620151806110a5565b4210156106505760405162461bcd60e51b81526004016104e3906110be565b8160050154655af3107a4000836006015461066b91906110a5565b11156106c55760405162461bcd60e51b8152602060048201526024808201527f5468652075736572206861736e277420616c6c6f636174656420656e6f756768604482015263040cae8d60e31b60648201526084016104e3565b600382015460018301546106eb91600160a81b90046001600160401b0316908787610ca8565b6107415760405162461bcd60e51b815260206004820152602160248201527f5468652070726f6f66206f662053746f7261676520697320696e636f727265636044820152601d60fa1b60648201526084016104e3565b42600483015560038201805467ffffffffffffffff60a81b19169055600682018054655af3107a4000919060009061077a9084906110a5565b909155505060038201805460ff60a01b191690558054655af3107a40009082906000906107a89084906110a5565b9091555050505050505050565b836107f05760405162461bcd60e51b815260206004820152600b60248201526a125b9d985b1a590810d25160aa1b60448201526064016104e3565b806108335760405162461bcd60e51b8152602060048201526013602482015272125b9d985b1a590813595c9adb1948149bdbdd606a1b60448201526064016104e3565b336000818152600160208190526040918290208781556002810180546001600160401b03888116600160401b026fffffffffffffffffffffffffffffffff19909216908a161717905590810184905590519091907f82a6770235134bf5adb9f13818f51c095aff7b9b1e86f704703fcb4ea1c2e690906108b69088815260200190565b60405180910390a25050505050565b6108cd610d9a565b6108d76000610dc7565b565b33600090815260026020526040902080548061092e5760405162461bcd60e51b81526020600482015260146024820152734e6f207265776172647320617661696c61626c6560601b60448201526064016104e3565b60018201546109409062278d006110a5565b42101561095f5760405162461bcd60e51b81526004016104e3906110be565b6000808355604051339083908381818185875af1925050503d80600081146109a3576040519150601f19603f3d011682016040523d82523d6000602084013e6109a8565b606091505b50509050806109b657600080fd5b505050565b6001600160a01b038116600081815260026020908152604080832033845260019283905290832060030180546001600160a01b0319169094179093558201549003610a0b57426001820155600081555b5050565b3360009081526001602052604090208054610a615760405162461bcd60e51b815260206004820152601260248201527111185d18525b999bc81b9bdd08199bdd5b9960721b60448201526064016104e3565b34816005016000828254610a7591906110a5565b909155505050565b610a85610d9a565b6001600160a01b038116610aaf57604051631e4fbdf760e01b8152600060048201526024016104e3565b610ab881610dc7565b50565b6001600160a01b038181166000908152600160205260409020600301548291163314610af95760405162461bcd60e51b81526004016104e39061103b565b6001600160a01b03821660009081526001602052604090208054610b6a5760405162461bcd60e51b815260206004820152602260248201527f4e6f2044617461496e666f20666f756e6420666f722074686973206164647265604482015261737360f01b60648201526084016104e3565b6004810154610b7c90620151806110a5565b421015610b9b5760405162461bcd60e51b81526004016104e3906110be565b6003810154600160a01b900460ff1615610c015760405162461bcd60e51b815260206004820152602160248201527f596f7520616c72656164792061736b656420666f722061206368616c6c656e676044820152606560f81b60648201526084016104e3565b6002810154610c2090600160401b90046001600160401b03164461110b565b600382018054600160a01b68ffffffffffffffffff60a01b19909116600160a81b6001600160401b03948516810260ff60a01b1916919091179190911791829055604051910490911681526001600160a01b038416907f40871ff904cf6ca42f9dcbac1f7d50ab55381a1d0db3eedd5dd967b209f8d8239060200160405180910390a2505050565b81516020830120600090815b8351811015610d8e57610cc8600288611131565b600003610d215781848281518110610ce257610ce2611145565b6020026020010151604051602001610d04929190918252602082015260400190565b604051602081830303815290604052805190602001209150610d6f565b838181518110610d3357610d33611145565b602002602001015182604051602001610d56929190918252602082015260400190565b6040516020818303038152906040528051906020012091505b610d7a60028861115b565b965080610d868161116f565b915050610cb4565b50909314949350505050565b6000546001600160a01b031633146108d75760405163118cdaa760e01b81523360048201526024016104e3565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b80356001600160a01b0381168114610e2e57600080fd5b919050565b600060208284031215610e4557600080fd5b610e4e82610e17565b9392505050565b634e487b7160e01b600052604160045260246000fd5b604051601f8201601f191681016001600160401b0381118282101715610e9357610e93610e55565b604052919050565b600082601f830112610eac57600080fd5b813560206001600160401b03821115610ec757610ec7610e55565b8160051b610ed6828201610e6b565b9283528481018201928281019087851115610ef057600080fd5b83870192505b84831015610f0f57823582529183019190830190610ef6565b979650505050505050565b600080600060608486031215610f2f57600080fd5b610f3884610e17565b92506020808501356001600160401b0380821115610f5557600080fd5b818701915087601f830112610f6957600080fd5b813581811115610f7b57610f7b610e55565b610f8d601f8201601f19168501610e6b565b8181528985838601011115610fa157600080fd5b818585018683013760009181019094015291935060408601359180831115610fc857600080fd5b5050610fd686828701610e9b565b9150509250925092565b80356001600160401b0381168114610e2e57600080fd5b6000806000806080858703121561100d57600080fd5b8435935061101d60208601610fe0565b925061102b60408601610fe0565b9396929550929360600135925050565b60208082526034908201527f596f75206e65656420746f206265207468652073746f726167652070726f766960408201527364657220666f722074686973206164647265737360601b606082015260800190565b634e487b7160e01b600052601160045260246000fd5b808201808211156110b8576110b861108f565b92915050565b6020808252601a908201527f4e6f7420456e6f7567682074696d652068617320706173736564000000000000604082015260600190565b634e487b7160e01b600052601260045260246000fd5b60006001600160401b0380841680611125576111256110f5565b92169190910692915050565b600082611140576111406110f5565b500690565b634e487b7160e01b600052603260045260246000fd5b60008261116a5761116a6110f5565b500490565b6000600182016111815761118161108f565b506001019056fea264697066735822122016553bd36c6b6d440c2b325aade04247e5925f159e867dd46d5cf1027428683f64736f6c63430008140033",
+  "devdoc": {
+    "details": "This contract implements a relatively simple way of storing messages",
+    "errors": {
+      "OwnableInvalidOwner(address)": [
+        {
+          "details": "The owner is not a valid owner account. (eg. `address(0)`)"
+        }
+      ],
+      "OwnableUnauthorizedAccount(address)": [
+        {
+          "details": "The caller account is not authorized to perform an operation."
+        }
+      ]
+    },
+    "kind": "dev",
+    "methods": {
+      "addFundsForStorage()": {
+        "details": "Make sure the DataInfo is non zero (has been already created)"
+      },
+      "getCID(address)": {
+        "details": "Passes when the user has a CID stored. This function is view only, so it doesn't modify the state of the contract",
+        "params": {
+          "addr": "Address of the account you are trying to access the data from"
+        },
+        "returns": {
+          "_0": "The CID associated with the user."
+        }
+      },
+      "getChallenge(address)": {
+        "params": {
+          "addr": "Address of the account you are trying to get a challenge from."
+        }
+      },
+      "getChallengeIndex(address)": {
+        "params": {
+          "addr": "Address of the account you are trying to get a challenge from."
+        }
+      },
+      "getStorageReward(address,bytes,bytes32[])": {
+        "params": {
+          "addr": "Address of the account you are trying to get the reward from.",
+          "hashes": "Array of hashes allowing the proof : it should be ordered by the level in the merkle tree from the leafs.  it should allow the proof to pass."
+        }
+      },
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner."
+      },
+      "setCID(bytes32,uint64,uint64,bytes32)": {
+        "params": {
+          "cid": "The CID to set for the user.",
+          "newMerkleRoot": "The calculated merkle root corresponding of the hash of each chunks, then the hash of each chunk concatenated 2-by-2...",
+          "numberOfChunks": "The number of chunks we divided the data for the storage proof. (Total number of chunks)",
+          "sizeOfChunks": "The size of each chunks. (Padding need to be applied for the last chunk if necessary)"
+        }
+      },
+      "setStorageProvider(address)": {
+        "params": {
+          "addr": "Address of the account you are trying to set as a storage provider."
+        }
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      }
+    },
+    "title": "A simple chat contract that stores a link between users and messages on IPFS",
+    "version": 1
+  },
+  "userdoc": {
+    "events": {
+      "CIDUpdated(address,bytes32)": {
+        "notice": "Amount of tokens required for storing a message"
+      },
+      "Challenge(address,uint64)": {
+        "notice": "Challenge for address addr"
+      }
+    },
+    "kind": "user",
+    "methods": {
+      "PRICE_PER_DAY()": {
+        "notice": "Amount of eth earned for storing files per day"
+      },
+      "addFundsForStorage()": {
+        "notice": "Add funds to an existing DataInfo by sending tokens and updating"
+      },
+      "constructor": {
+        "notice": "Constructor function"
+      },
+      "getCID(address)": {
+        "notice": "Retrieves the CID (Content Identifier) stored for the user."
+      },
+      "getChallenge(address)": {
+        "notice": "Generate the challenge for the proof of Storage to use with getStorageReward."
+      },
+      "getChallengeIndex(address)": {
+        "notice": "Get the challenge index generated before"
+      },
+      "getStorageReward(address,bytes,bytes32[])": {
+        "notice": "Allows storage to reedem a partial amount of reward in token by answering to the challenge. They can do it only once per day. The full reedmed amount can be withdraw after a month (30days) since lastWithdrawTime see withdrawRewards()"
+      },
+      "setCID(bytes32,uint64,uint64,bytes32)": {
+        "notice": "Sets the CID (Content Identifier) for the sender of the transaction."
+      },
+      "withdrawRewards()": {
+        "notice": "Take out all the rewards in Eth based on the amount of tokens the address holds"
+      }
+    },
+    "notice": "You can use this contract for keeping a descentralized chat history",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 8,
+        "contract": "contracts/EthernalChatIncentivized.sol:EthernalChatIncentivized",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 300,
+        "contract": "contracts/EthernalChatIncentivized.sol:EthernalChatIncentivized",
+        "label": "mapDataInfo",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_address,t_struct(DataInfo)285_storage)"
+      },
+      {
+        "astId": 306,
+        "contract": "contracts/EthernalChatIncentivized.sol:EthernalChatIncentivized",
+        "label": "mapProviderInfo",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_mapping(t_address,t_struct(ProviderInfo)290_storage)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_address,t_struct(DataInfo)285_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct EthernalChatIncentivized.DataInfo)",
+        "numberOfBytes": "32",
+        "value": "t_struct(DataInfo)285_storage"
+      },
+      "t_mapping(t_address,t_struct(ProviderInfo)290_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct EthernalChatIncentivized.ProviderInfo)",
+        "numberOfBytes": "32",
+        "value": "t_struct(ProviderInfo)290_storage"
+      },
+      "t_struct(DataInfo)285_storage": {
+        "encoding": "inplace",
+        "label": "struct EthernalChatIncentivized.DataInfo",
+        "members": [
+          {
+            "astId": 266,
+            "contract": "contracts/EthernalChatIncentivized.sol:EthernalChatIncentivized",
+            "label": "cid",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 268,
+            "contract": "contracts/EthernalChatIncentivized.sol:EthernalChatIncentivized",
+            "label": "merkleRoot",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 270,
+            "contract": "contracts/EthernalChatIncentivized.sol:EthernalChatIncentivized",
+            "label": "sizeOfChunks",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint64"
+          },
+          {
+            "astId": 272,
+            "contract": "contracts/EthernalChatIncentivized.sol:EthernalChatIncentivized",
+            "label": "numberOfChunks",
+            "offset": 8,
+            "slot": "2",
+            "type": "t_uint64"
+          },
+          {
+            "astId": 274,
+            "contract": "contracts/EthernalChatIncentivized.sol:EthernalChatIncentivized",
+            "label": "storageProvider",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_address"
+          },
+          {
+            "astId": 276,
+            "contract": "contracts/EthernalChatIncentivized.sol:EthernalChatIncentivized",
+            "label": "challengeAsked",
+            "offset": 20,
+            "slot": "3",
+            "type": "t_bool"
+          },
+          {
+            "astId": 278,
+            "contract": "contracts/EthernalChatIncentivized.sol:EthernalChatIncentivized",
+            "label": "lastChallengeIndex",
+            "offset": 21,
+            "slot": "3",
+            "type": "t_uint64"
+          },
+          {
+            "astId": 280,
+            "contract": "contracts/EthernalChatIncentivized.sol:EthernalChatIncentivized",
+            "label": "lastTimeRewardRedeemed",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 282,
+            "contract": "contracts/EthernalChatIncentivized.sol:EthernalChatIncentivized",
+            "label": "allocatedEth",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 284,
+            "contract": "contracts/EthernalChatIncentivized.sol:EthernalChatIncentivized",
+            "label": "ethSpent",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "224"
+      },
+      "t_struct(ProviderInfo)290_storage": {
+        "encoding": "inplace",
+        "label": "struct EthernalChatIncentivized.ProviderInfo",
+        "members": [
+          {
+            "astId": 287,
+            "contract": "contracts/EthernalChatIncentivized.sol:EthernalChatIncentivized",
+            "label": "totalEthEarned",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 289,
+            "contract": "contracts/EthernalChatIncentivized.sol:EthernalChatIncentivized",
+            "label": "lastWithdrawTime",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "64"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint64": {
+        "encoding": "inplace",
+        "label": "uint64",
+        "numberOfBytes": "8"
+      }
+    }
+  }
+}
