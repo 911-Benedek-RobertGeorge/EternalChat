@@ -837,7 +837,7 @@ const deployedContracts = {
       },
     },
     EthernalChatIncentivized: {
-      address: "0x9A676e781A523b5d0C0e43731313A708CB607508",
+      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
       abi: [
         {
           inputs: [],
@@ -906,7 +906,7 @@ const deployedContracts = {
         },
         {
           inputs: [],
-          name: "ETH_PER_CID",
+          name: "PRICE_PER_DAY",
           outputs: [
             {
               internalType: "uint256",
@@ -922,6 +922,25 @@ const deployedContracts = {
           name: "addFundsForStorage",
           outputs: [],
           stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "addr",
+              type: "address",
+            },
+          ],
+          name: "getAllocatedEthToStorageProvider",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -959,7 +978,7 @@ const deployedContracts = {
               type: "uint64",
             },
           ],
-          stateMutability: "view",
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -970,9 +989,57 @@ const deployedContracts = {
               type: "address",
             },
           ],
+          name: "getStorageProvider",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "addr",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "chunkData",
+              type: "bytes",
+            },
+            {
+              internalType: "bytes32[]",
+              name: "hashes",
+              type: "bytes32[]",
+            },
+          ],
           name: "getStorageReward",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "addr",
+              type: "address",
+            },
+          ],
+          name: "getTotalEthToStorageProvider",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -1019,6 +1086,19 @@ const deployedContracts = {
             },
           ],
           name: "setCID",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "addr",
+              type: "address",
+            },
+          ],
+          name: "setStorageProvider",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",

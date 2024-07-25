@@ -39,6 +39,9 @@ contract EthernalChatIncentivized is Ownable {
 	/// @notice Amount of tokens required for storing a message
 	event CIDUpdated(address indexed user, bytes32 cid);
 
+		/// @notice Challenge for address addr
+	event Challenge(address indexed addr, uint64 challengeIndex);
+
 	modifier OnlyStorageProvider(address addr) {
 		require(
 			msg.sender == mapDataInfo[addr].storageProvider,
@@ -107,14 +110,44 @@ contract EthernalChatIncentivized is Ownable {
 		return dataInfo.cid;
 	}
 
-	// Storage Provider functions
+	
+	function getStorageProvider(address addr) public view returns (address) {
+		return mapDataInfo[addr].storageProvider;
+	}
 
-	/// @notice Get the challenger for the proof of Storage to use with getStorageReward.
+	function getAllocatedEthToStorageProvider(
+		address addr
+	) public view returns (uint256) {
+		return mapDataInfo[addr].allocatedEth;
+	}
+
+	function getTotalEthToStorageProvider(
+		address addr
+	) public view returns (uint256) {
+		return mapProviderInfo[addr].totalEthEarned;
+	}
+
+	
+	//							  //
+	//   						  //
+	// Storage Provider functions //
+	//   						  //
+	//   						  //
+
+
+	function getNumberOfChunks(address addr) public view  returns (uint64){
+		return mapDataInfo[addr].numberOfChunks;
+	}
+
+	function getChunkSize(address addr) public view  returns (uint64){
+		return mapDataInfo[addr].sizeOfChunks;
+	}
+
+	/// @notice Generate the challenge for the proof of Storage to use with getStorageReward.
 	/// @param addr Address of the account you are trying to get a challenge from.
-	/// @return index that represent the provider needs to reveal the data from.
 	function getChallenge(
 		address addr
-	) public OnlyStorageProvider(addr) returns (uint64 index) {
+	) public OnlyStorageProvider(addr){
 		DataInfo storage dataInfo = mapDataInfo[addr];
 		require(
 			dataInfo.cid != bytes32(0),
@@ -128,9 +161,15 @@ contract EthernalChatIncentivized is Ownable {
 			dataInfo.challengeAsked == false,
 			"You already asked for a challenge"
 		);
-		index = uint64(block.prevrandao) % dataInfo.numberOfChunks;
-		dataInfo.lastChallengeIndex = index;
+		dataInfo.lastChallengeIndex = uint64(block.prevrandao) % dataInfo.numberOfChunks;
 		dataInfo.challengeAsked = true;
+		emit Challenge(addr,dataInfo.lastChallengeIndex);
+	}
+
+	/// @notice Get the challenge index generated before
+	/// @param addr Address of the account you are trying to get a challenge from.
+	function getChallengeIndex(address addr) public view returns(uint64){
+		return mapDataInfo[addr].lastChallengeIndex;
 	}
 
 	function verifyStorageProof(
@@ -181,12 +220,6 @@ contract EthernalChatIncentivized is Ownable {
 		);
 
 		require(
-			2 ** (hashes.length) ==
-				dataInfo.numberOfChunks + (dataInfo.numberOfChunks % 2),
-			"The number of hashes necessary for the proof is not matching ceil[log2(numberOfChunks)]"
-		);
-
-		require(
 			verifyStorageProof(
 				dataInfo.lastChallengeIndex,
 				dataInfo.merkleRoot,
@@ -217,18 +250,5 @@ contract EthernalChatIncentivized is Ownable {
 		require(success);
 	}
 
-	function getStorageProvider(address addr) public view returns (address) {
-		return mapDataInfo[addr].storageProvider;
-	}
 
-	function getAllocatedEthToStorageProvider(
-		address addr
-	) public view returns (uint256) {
-		return mapDataInfo[addr].allocatedEth;
-	}
-    function getTotalEthToStorageProvider(
-		address addr
-	) public view returns (uint256) {
-		return mapProviderInfo[addr].totalEthEarned;
-	}
 }
