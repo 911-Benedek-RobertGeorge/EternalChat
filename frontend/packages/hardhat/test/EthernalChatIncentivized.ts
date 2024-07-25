@@ -140,38 +140,22 @@ describe("EthernalChatIncentivized", function () {
       await expect(ethernalChatAcc2.getChallenge(acc1.address)).to.be.rejectedWith("You already asked for a challenge");
     });
 
-    // it("get Challenge should give a valid challenge", async function () {
-    //   const {ethernalChat, acc1, acc2} = await loadFixture(deployContract);
-    //   const ethernalChatAcc1 = ethernalChat.connect(acc1)
-    //   const ethernalChatAcc2 = ethernalChat.connect(acc2)
-    //   const data = [{"test":1},{"test":2},{"test":3},{"test":4},{"test":"It doesn't make sense it is just data"}];
-    //   const dataJson = JSON.stringify(data);
-    //   const numChunks = 10n;
-    //   const {cidBytes,merkleRoot, chunkSize, cid} = await getCidAndData(data,numChunks)
+    it("get Challenge should give a valid challenge", async function () {
+        const {ethernalChat, acc1, acc2} = await loadFixture(deployContract);
+        const ethernalChatAcc1 = ethernalChat.connect(acc1)
+        const ethernalChatAcc2 = ethernalChat.connect(acc2)
+        const data = [{"test":1},{"test":2},{"test":3},{"test":4},{"test":"It doesn't make sense it is just data"}];
+        const numChunksInit = 10n;
+        const {cidBytes,merkleRoot, chunkSize, cid, numChunks} = await getCidAndData(data,numChunksInit)
+  
+        await ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot);
+        await ethernalChatAcc1.setStorageProvider(acc2.address);
+  
+        await ethernalChatAcc2.getChallenge(acc1.address);
+        const index = await ethernalChatAcc2.getChallengeIndex(acc1.address);
 
-    //   await ethernalChatAcc1.setCID(cidBytes,numChunks,chunkSize,merkleRoot);
-    //   const tx = await ethernalChatAcc1.setStorageProvider(acc2.address);
-    //   tx.wait()
-    //   const tx2 = await ethernalChatAcc1.setStorageProvider(acc2.address);
-    //   tx2.wait()
-    //   const tx3 = await ethernalChatAcc1.setStorageProvider(acc2.address);
-    //   tx3.wait()
-    //   const tx4 = await ethernalChatAcc1.setStorageProvider(acc2.address);
-    //   tx4.wait()
-
-
-
-    //   await ethernalChatAcc2.getChallenge(acc1.address);
-    //   const index = await ethernalChatAcc2.test(acc1.address);
-    //   console.log(index);
-      
-      // const tx2 = await ethernalChatAcc2.getChallenge(acc1.address).then((val) => console.log(val));
-
-      
-      // const index = Number(BigInt(tx.data));
-      // const {proofHashes,chunkData} = getProofHashesFromJson(dataJson,Number(chunkSize),index);
-      // const tx2 = await ethernalChatAcc2.getStorageReward(acc1.address,chunkData,proofHashes);
-    // });
+        expect(index).to.be.below(numChunks);
+      });
 
     it("should validate a valid proof", async function () {
       const {ethernalChat, acc1, acc2} = await loadFixture(deployContract);
@@ -206,11 +190,47 @@ describe("EthernalChatIncentivized", function () {
 
       const proofHashes = proof?.map(p => toHex(p));
 
-      const tx2 = await ethernalChatAcc2.getStorageReward(acc1.address,toHex(chunkData as Buffer),proofHashes as string[]);
-
-      
+      await expect(ethernalChatAcc2.getStorageReward(acc1.address,toHex(chunkData as Buffer),proofHashes as string[])).to.not.be.rejected;
 
     });
+
+    it("should validate a valid proof", async function () {
+      const {ethernalChat, acc1, acc2} = await loadFixture(deployContract);
+      const ethernalChatAcc1 = ethernalChat.connect(acc1)
+      const ethernalChatAcc2 = ethernalChat.connect(acc2)
+      const data = [{"test":1},{"test":2},{"test":3},{"test":4},{"test":"It doesn't make sense it is just data"}];
+      const dataJson = JSON.stringify(data);
+      const numChunksInit = 10n;
+      const {cidBytes, merkleRoot, chunkSize, cid, numChunks} = await getCidAndData(data,numChunksInit)
+
+      await ethernalChatAcc1.setCID(cidBytes,chunkSize,numChunks,merkleRoot);
+      const num = await ethernalChatAcc1.getNumberOfChunks(acc1.address);
+      console.log(num);
+      
+      await ethernalChatAcc1.setStorageProvider(acc2.address);
+      await ethernalChatAcc1.addFundsForStorage({ value: ethers.parseEther("0.01") });
+
+      const tx = await ethernalChatAcc2.getChallenge(acc1.address);
+      tx.wait()
+      const index = await ethernalChatAcc2.getChallengeIndex(acc1.address);
+
+
+
+      const { chunkData, proof, merkleRoot: mr2 } = generateProof(data, Number(chunkSize), Number(index+1n));
+
+      console.log('Chunk Data:', chunkData?.toString('hex'));
+      console.log('Proof:', proof?.map(p => p.toString('hex')));
+      console.log('Merkle Root:', mr2.toString('hex'));
+
+      expect(chunkData).to.not.be.undefined;
+      expect(proof).to.not.be.undefined;
+
+      const proofHashes = proof?.map(p => toHex(p));
+
+      await expect(ethernalChatAcc2.getStorageReward(acc1.address,toHex(chunkData as Buffer),proofHashes as string[])).to.be.rejectedWith("The proof of Storage is incorrect");
+
+    });
+    
   });
 });
 
